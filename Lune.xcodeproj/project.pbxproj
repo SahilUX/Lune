@@ -1,0 +1,561 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0CB4C26A08397BD788BC7C74 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F2D433ABA795F3AB9A77E6 /* ImageCache.swift */; };
+		0EA4210215E625F932353606 /* LuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */; };
+		111A63B68E58AC9059113FEE /* SubsonicModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1EDD2E607970BA8871521F /* SubsonicModels.swift */; };
+		11CB7B17E3C6E2772CBD1F41 /* TrackCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4B7F3D7585EB3ABC0ACC78 /* TrackCache.swift */; };
+		2EBBC8D7208B22B200D009BE /* AlbumGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97E0CBD5876569943994C61 /* AlbumGridView.swift */; };
+		312144264C1A9488777C3E9B /* FullPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C199A50EF2488233B28523 /* FullPlayerView.swift */; };
+		39AC0CDD7D1BB40CAD554CF2 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A10959EB2C028C2FDA07FC /* NowPlayingBridge.swift */; };
+		4251C8D62727FD210C518A44 /* SkeletonLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55351C40028A8ED7AC1C5084 /* SkeletonLoader.swift */; };
+		435A9718C7AA2FDBF72F23DE /* PlaylistDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F2FF2798CB0BBBFB08F97A /* PlaylistDetailView.swift */; };
+		46392E4F4B8A2B329C892A72 /* Song.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B167E0D0513569E930B6C7 /* Song.swift */; };
+		46E09F2835C147633C4580AA /* RecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6A657692D6AD75F2AF21ADA /* RecordView.swift */; };
+		524BF5B79BE65B29C0684F34 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D49E71FA2B5798E195B6C32 /* SettingsView.swift */; };
+		5516E30B3C9EDAA59835B1D8 /* QueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F8F00605DBCC4D0E8EF519 /* QueueView.swift */; };
+		584E8FD2982472D7B2282663 /* LastFMClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67983C8963DCF975B2EA7FA9 /* LastFMClient.swift */; };
+		5E279D2B8AA280755AD14776 /* CompositePlaylistArt.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE5DE385E0B9E6C9C3C6F445 /* CompositePlaylistArt.swift */; };
+		68BFFF6E6637F57AA2824C29 /* LibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DD0111D3FC8C3D81825AC2 /* LibraryStore.swift */; };
+		6D3570A2F375C0F60CFB2B83 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663593B69443D2E8B7C83F33 /* SidebarView.swift */; };
+		71F98A89AD98434C8FEB944F /* NowPlayingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016B08721B36B275F98091AF /* NowPlayingView.swift */; };
+		71FE28661CD4949DD3352D1C /* Lyrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD5F5F188567C5A424ED868 /* Lyrics.swift */; };
+		7957EBEEEC87151514C538F9 /* ArtistListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E1288F989F8A1F73C1D7A4 /* ArtistListView.swift */; };
+		79C4ACCF5C5EC32230589BAF /* GenreListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 617ADD0A25D931AFD7430CC7 /* GenreListView.swift */; };
+		83B9E81696794534EFEAACF0 /* PlaybackCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC66CE8D505722F602A5CFCE /* PlaybackCommands.swift */; };
+		9C34780FE26720351BD9FDB5 /* MenuBarPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40AFC6613F8B6128CD95B1D4 /* MenuBarPlayerView.swift */; };
+		9DE8B1774F4BCF5A5E4C8950 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0D936A25DEC611FEBE20ED /* SearchView.swift */; };
+		A8449D5298C0789CA541C9F3 /* HeartButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563AAE58A7BFF35F54B32E24 /* HeartButton.swift */; };
+		A93ACB63DAD0182793F6274C /* LyricsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ECC0D263F4F24B95DD759D8 /* LyricsService.swift */; };
+		B2F1798E914843C8DE2EADCE /* SubsonicClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F25B0CC91FB9B6FBA76C30 /* SubsonicClient.swift */; };
+		BC4385A5D4802B227B87A251 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F6199E447433289B78062A /* OnboardingView.swift */; };
+		BD4AAA4602689F34D3F788C7 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3664EF90969A7A2BD351731 /* AlbumDetailView.swift */; };
+		CEC354F1EBD9614DC35A6400 /* NowPlayingBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4530BDD06B9E2F1A3ED0FC9E /* NowPlayingBar.swift */; };
+		DE226BAF2D0AF57EF527ACE4 /* SongListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A4E8A68C81277876327542 /* SongListView.swift */; };
+		F641446DF4732B74EE888127 /* DurationFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7989C36D8988E4853441F1 /* DurationFormatter.swift */; };
+		FB2FC47EA7FCAD01EF8E8EB2 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A32AB6F3AF9B22D3280AEF /* ContentView.swift */; };
+		FC17C1FAC7034B42B8C3D7F3 /* PlayerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88AF59105D03679716D077AE /* PlayerEngine.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		016B08721B36B275F98091AF /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
+		0D49E71FA2B5798E195B6C32 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		0E7989C36D8988E4853441F1 /* DurationFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatter.swift; sourceTree = "<group>"; };
+		14B167E0D0513569E930B6C7 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
+		18DD0111D3FC8C3D81825AC2 /* LibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryStore.swift; sourceTree = "<group>"; };
+		1FDCBA73F322582703584C65 /* Lune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lune.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2E1EDD2E607970BA8871521F /* SubsonicModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicModels.swift; sourceTree = "<group>"; };
+		40AFC6613F8B6128CD95B1D4 /* MenuBarPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPlayerView.swift; sourceTree = "<group>"; };
+		4530BDD06B9E2F1A3ED0FC9E /* NowPlayingBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingBar.swift; sourceTree = "<group>"; };
+		55351C40028A8ED7AC1C5084 /* SkeletonLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoader.swift; sourceTree = "<group>"; };
+		563AAE58A7BFF35F54B32E24 /* HeartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartButton.swift; sourceTree = "<group>"; };
+		58F25B0CC91FB9B6FBA76C30 /* SubsonicClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicClient.swift; sourceTree = "<group>"; };
+		617ADD0A25D931AFD7430CC7 /* GenreListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreListView.swift; sourceTree = "<group>"; };
+		62C199A50EF2488233B28523 /* FullPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullPlayerView.swift; sourceTree = "<group>"; };
+		62F6199E447433289B78062A /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		65F8F00605DBCC4D0E8EF519 /* QueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueView.swift; sourceTree = "<group>"; };
+		663593B69443D2E8B7C83F33 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		67983C8963DCF975B2EA7FA9 /* LastFMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMClient.swift; sourceTree = "<group>"; };
+		6E01FF73EDB68FD73E6132D7 /* Lune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Lune.entitlements; sourceTree = "<group>"; };
+		7ECC0D263F4F24B95DD759D8 /* LyricsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsService.swift; sourceTree = "<group>"; };
+		81A10959EB2C028C2FDA07FC /* NowPlayingBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingBridge.swift; sourceTree = "<group>"; };
+		88AF59105D03679716D077AE /* PlayerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerEngine.swift; sourceTree = "<group>"; };
+		89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuneApp.swift; sourceTree = "<group>"; };
+		96A32AB6F3AF9B22D3280AEF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		9B4B7F3D7585EB3ABC0ACC78 /* TrackCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackCache.swift; sourceTree = "<group>"; };
+		A3A4E8A68C81277876327542 /* SongListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongListView.swift; sourceTree = "<group>"; };
+		A6A657692D6AD75F2AF21ADA /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
+		AC66CE8D505722F602A5CFCE /* PlaybackCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackCommands.swift; sourceTree = "<group>"; };
+		B0F2D433ABA795F3AB9A77E6 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
+		B1E1288F989F8A1F73C1D7A4 /* ArtistListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistListView.swift; sourceTree = "<group>"; };
+		B1F2FF2798CB0BBBFB08F97A /* PlaylistDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailView.swift; sourceTree = "<group>"; };
+		B97E0CBD5876569943994C61 /* AlbumGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumGridView.swift; sourceTree = "<group>"; };
+		BB714D036EFA5C9D1FBEC458 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CB0D936A25DEC611FEBE20ED /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		DE5DE385E0B9E6C9C3C6F445 /* CompositePlaylistArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositePlaylistArt.swift; sourceTree = "<group>"; };
+		E3664EF90969A7A2BD351731 /* AlbumDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumDetailView.swift; sourceTree = "<group>"; };
+		ECD5F5F188567C5A424ED868 /* Lyrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lyrics.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		037A0059DF1ABCBD1C96C57D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				62F6199E447433289B78062A /* OnboardingView.swift */,
+				0D49E71FA2B5798E195B6C32 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		0F1046D7F71E21565AA9A73E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FE20EA04FEE094681E5406AD /* Library */,
+				9C824FA9037680C26ED1D74B /* NowPlaying */,
+				C8883FE037A415EADF9C7C91 /* Playlists */,
+				CE3F5DDF5700AABB983CA46A /* Queue */,
+				2189549899958BECC66864D4 /* Search */,
+				037A0059DF1ABCBD1C96C57D /* Settings */,
+				B4000832037168295B52443E /* Sidebar */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		1066B93543BA06191F7FF785 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				96A32AB6F3AF9B22D3280AEF /* ContentView.swift */,
+				89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */,
+				AC66CE8D505722F602A5CFCE /* PlaybackCommands.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		13D523E1BD722188F42BD43F = {
+			isa = PBXGroup;
+			children = (
+				19B76B5A6F415B154C7776C1 /* Lune */,
+				6E763B94E4BDB63F4095FBCC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		19B76B5A6F415B154C7776C1 /* Lune */ = {
+			isa = PBXGroup;
+			children = (
+				BB714D036EFA5C9D1FBEC458 /* Info.plist */,
+				6E01FF73EDB68FD73E6132D7 /* Lune.entitlements */,
+				B1125973F3A923EF10885091 /* API */,
+				1066B93543BA06191F7FF785 /* App */,
+				754729427EFA08127258E8C5 /* Audio */,
+				5DFB592267624EC43869A85D /* Cache */,
+				B091A3BA7CAE4AA21B94AEB0 /* Components */,
+				604F6DF0AA490C9ACF597A16 /* Models */,
+				9E00D433BFCE14FF954F0EFD /* Persistence */,
+				F33416DC08B36735B5AF2522 /* Utilities */,
+				0F1046D7F71E21565AA9A73E /* Views */,
+			);
+			path = Lune;
+			sourceTree = "<group>";
+		};
+		2189549899958BECC66864D4 /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				CB0D936A25DEC611FEBE20ED /* SearchView.swift */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
+		5DFB592267624EC43869A85D /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				B0F2D433ABA795F3AB9A77E6 /* ImageCache.swift */,
+				9B4B7F3D7585EB3ABC0ACC78 /* TrackCache.swift */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
+		604F6DF0AA490C9ACF597A16 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				ECD5F5F188567C5A424ED868 /* Lyrics.swift */,
+				14B167E0D0513569E930B6C7 /* Song.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6E763B94E4BDB63F4095FBCC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1FDCBA73F322582703584C65 /* Lune.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		754729427EFA08127258E8C5 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				81A10959EB2C028C2FDA07FC /* NowPlayingBridge.swift */,
+				88AF59105D03679716D077AE /* PlayerEngine.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		9C824FA9037680C26ED1D74B /* NowPlaying */ = {
+			isa = PBXGroup;
+			children = (
+				62C199A50EF2488233B28523 /* FullPlayerView.swift */,
+				40AFC6613F8B6128CD95B1D4 /* MenuBarPlayerView.swift */,
+				4530BDD06B9E2F1A3ED0FC9E /* NowPlayingBar.swift */,
+				016B08721B36B275F98091AF /* NowPlayingView.swift */,
+				A6A657692D6AD75F2AF21ADA /* RecordView.swift */,
+			);
+			path = NowPlaying;
+			sourceTree = "<group>";
+		};
+		9E00D433BFCE14FF954F0EFD /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				18DD0111D3FC8C3D81825AC2 /* LibraryStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		B091A3BA7CAE4AA21B94AEB0 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DE5DE385E0B9E6C9C3C6F445 /* CompositePlaylistArt.swift */,
+				55351C40028A8ED7AC1C5084 /* SkeletonLoader.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		B1125973F3A923EF10885091 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				67983C8963DCF975B2EA7FA9 /* LastFMClient.swift */,
+				7ECC0D263F4F24B95DD759D8 /* LyricsService.swift */,
+				58F25B0CC91FB9B6FBA76C30 /* SubsonicClient.swift */,
+				2E1EDD2E607970BA8871521F /* SubsonicModels.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		B4000832037168295B52443E /* Sidebar */ = {
+			isa = PBXGroup;
+			children = (
+				663593B69443D2E8B7C83F33 /* SidebarView.swift */,
+			);
+			path = Sidebar;
+			sourceTree = "<group>";
+		};
+		C8883FE037A415EADF9C7C91 /* Playlists */ = {
+			isa = PBXGroup;
+			children = (
+				B1F2FF2798CB0BBBFB08F97A /* PlaylistDetailView.swift */,
+			);
+			path = Playlists;
+			sourceTree = "<group>";
+		};
+		CE3F5DDF5700AABB983CA46A /* Queue */ = {
+			isa = PBXGroup;
+			children = (
+				65F8F00605DBCC4D0E8EF519 /* QueueView.swift */,
+			);
+			path = Queue;
+			sourceTree = "<group>";
+		};
+		F33416DC08B36735B5AF2522 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				0E7989C36D8988E4853441F1 /* DurationFormatter.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		FE20EA04FEE094681E5406AD /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				E3664EF90969A7A2BD351731 /* AlbumDetailView.swift */,
+				B97E0CBD5876569943994C61 /* AlbumGridView.swift */,
+				B1E1288F989F8A1F73C1D7A4 /* ArtistListView.swift */,
+				617ADD0A25D931AFD7430CC7 /* GenreListView.swift */,
+				563AAE58A7BFF35F54B32E24 /* HeartButton.swift */,
+				A3A4E8A68C81277876327542 /* SongListView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		061C126FBD14604C70B0A33D /* Lune */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 13C7ABB6B2B37A353F8F269E /* Build configuration list for PBXNativeTarget "Lune" */;
+			buildPhases = (
+				6F5AD3876A26EB2956F6D9D9 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Lune;
+			packageProductDependencies = (
+			);
+			productName = Lune;
+			productReference = 1FDCBA73F322582703584C65 /* Lune.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A425CB11B618639F4BFA41E8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					061C126FBD14604C70B0A33D = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 27EECC2154055D7100F0C76E /* Build configuration list for PBXProject "Lune" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 13D523E1BD722188F42BD43F;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6E763B94E4BDB63F4095FBCC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				061C126FBD14604C70B0A33D /* Lune */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6F5AD3876A26EB2956F6D9D9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BD4AAA4602689F34D3F788C7 /* AlbumDetailView.swift in Sources */,
+				2EBBC8D7208B22B200D009BE /* AlbumGridView.swift in Sources */,
+				7957EBEEEC87151514C538F9 /* ArtistListView.swift in Sources */,
+				5E279D2B8AA280755AD14776 /* CompositePlaylistArt.swift in Sources */,
+				FB2FC47EA7FCAD01EF8E8EB2 /* ContentView.swift in Sources */,
+				F641446DF4732B74EE888127 /* DurationFormatter.swift in Sources */,
+				312144264C1A9488777C3E9B /* FullPlayerView.swift in Sources */,
+				79C4ACCF5C5EC32230589BAF /* GenreListView.swift in Sources */,
+				A8449D5298C0789CA541C9F3 /* HeartButton.swift in Sources */,
+				0CB4C26A08397BD788BC7C74 /* ImageCache.swift in Sources */,
+				584E8FD2982472D7B2282663 /* LastFMClient.swift in Sources */,
+				68BFFF6E6637F57AA2824C29 /* LibraryStore.swift in Sources */,
+				0EA4210215E625F932353606 /* LuneApp.swift in Sources */,
+				71FE28661CD4949DD3352D1C /* Lyrics.swift in Sources */,
+				A93ACB63DAD0182793F6274C /* LyricsService.swift in Sources */,
+				9C34780FE26720351BD9FDB5 /* MenuBarPlayerView.swift in Sources */,
+				CEC354F1EBD9614DC35A6400 /* NowPlayingBar.swift in Sources */,
+				39AC0CDD7D1BB40CAD554CF2 /* NowPlayingBridge.swift in Sources */,
+				71F98A89AD98434C8FEB944F /* NowPlayingView.swift in Sources */,
+				BC4385A5D4802B227B87A251 /* OnboardingView.swift in Sources */,
+				83B9E81696794534EFEAACF0 /* PlaybackCommands.swift in Sources */,
+				FC17C1FAC7034B42B8C3D7F3 /* PlayerEngine.swift in Sources */,
+				435A9718C7AA2FDBF72F23DE /* PlaylistDetailView.swift in Sources */,
+				5516E30B3C9EDAA59835B1D8 /* QueueView.swift in Sources */,
+				46E09F2835C147633C4580AA /* RecordView.swift in Sources */,
+				9DE8B1774F4BCF5A5E4C8950 /* SearchView.swift in Sources */,
+				524BF5B79BE65B29C0684F34 /* SettingsView.swift in Sources */,
+				6D3570A2F375C0F60CFB2B83 /* SidebarView.swift in Sources */,
+				4251C8D62727FD210C518A44 /* SkeletonLoader.swift in Sources */,
+				46392E4F4B8A2B329C892A72 /* Song.swift in Sources */,
+				DE226BAF2D0AF57EF527ACE4 /* SongListView.swift in Sources */,
+				B2F1798E914843C8DE2EADCE /* SubsonicClient.swift in Sources */,
+				111A63B68E58AC9059113FEE /* SubsonicModels.swift in Sources */,
+				11CB7B17E3C6E2772CBD1F41 /* TrackCache.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		23455BA00162877953C83607 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Lune/Lune.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 627Y9R25T5;
+				INFOPLIST_FILE = Lune/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lune.app;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		39EDB78BC9693074A33C40C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Lune/Lune.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 627Y9R25T5;
+				INFOPLIST_FILE = Lune/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lune.app;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		7F61142AFF558A6E12D53208 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Lune/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lune.app;
+				PRODUCT_NAME = Lune;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		CC4E6CFEDCE4FF3C666EC2C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Lune/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lune.app;
+				PRODUCT_NAME = Lune;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		13C7ABB6B2B37A353F8F269E /* Build configuration list for PBXNativeTarget "Lune" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23455BA00162877953C83607 /* Debug */,
+				39EDB78BC9693074A33C40C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		27EECC2154055D7100F0C76E /* Build configuration list for PBXProject "Lune" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F61142AFF558A6E12D53208 /* Debug */,
+				CC4E6CFEDCE4FF3C666EC2C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A425CB11B618639F4BFA41E8 /* Project object */;
+}

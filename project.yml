@@ -1,0 +1,55 @@
+name: Lune
+options:
+  bundleIdPrefix: com.lune
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "16"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    PRODUCT_NAME: Lune
+    SWIFT_VERSION: "6.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    INFOPLIST_FILE: Lune/Info.plist
+    PRODUCT_BUNDLE_IDENTIFIER: com.lune.app
+
+targets:
+  Lune:
+    type: application
+    platform: macOS
+    sources:
+      - path: Lune
+        excludes:
+          - "**/*.md"
+    settings:
+      base:
+        INFOPLIST_FILE: Lune/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.lune.app
+        CODE_SIGN_ENTITLEMENTS: Lune/Lune.entitlements
+    entitlements:
+      path: Lune/Lune.entitlements
+      properties:
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+    info:
+      path: Lune/Info.plist
+
+schemes:
+  Lune:
+    build:
+      targets:
+        Lune: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
