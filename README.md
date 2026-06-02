@@ -1,0 +1,120 @@
+# Lune
+
+A native macOS music client for Navidrome/Subsonic servers with Last.fm scrobbling support.
+
+## Features
+
+- **Music Playback**: Stream music from your Navidrome/Subsonic server
+- **Library Management**: Browse artists, albums, songs, genres, and playlists
+- **Now Playing**: Expanded player with album artwork, lyrics, and vinyl/album art toggle
+- **Picture-in-Picture**: Floating player window that stays on top
+- **Smart Playlist**: Drag-and-drop songs into playlists with multi-select support
+- **Formatting Control**: Choose streaming format (MP3, AAC, FLAC, Opus) and bitrate for local and remote networks
+- **Favorites**: Star songs for quick access
+- **Search**: Full-text search across your library
+- **Last.fm Integration**: Scrobble your plays to Last.fm
+- **Lyrics**: Display synchronized lyrics when available
+- **Caching**: Local cache for offline playback
+- **System Integration**: Menu bar player, keyboard shortcuts, system media controls
+
+## Requirements
+
+- macOS 14.0+
+- Navidrome or Subsonic server
+- Swift 6.0
+
+## Building
+
+1. Clone the repository
+2. Open `Lune.xcodeproj` in Xcode
+3. Build and run with `Cmd+B`
+
+## Setup
+
+### Server Connection
+
+1. Open Settings > Server
+2. Enter your local and/or remote Navidrome/Subsonic server URLs
+3. Add your username and password
+4. Click "Test Connection" to verify
+5. Click "Save"
+
+### Last.fm Scrobbling
+
+1. Register an app at [last.fm/api/account/create](https://www.last.fm/api/account/create)
+2. Open Settings > Last.fm
+3. Paste your API key and secret
+4. Click "Connect Last.fm" and authorize in your browser
+5. Click "I've authorized — Finish connecting"
+6. Toggle "Enable scrobbling" to start sending plays to Last.fm
+
+### Playback Settings
+
+1. Open Settings > Playback
+2. Configure format and bitrate for local and remote streaming
+3. Enable/disable menu bar player
+4. Configure PiP (Picture-in-Picture) window behavior
+
+## Architecture
+
+- **SwiftUI** for the UI with macOS 14+ deployment target
+- **Swift 6** strict concurrency (actors, @MainActor, @Observable)
+- **AVFoundation** for audio playback
+- **Subsonic API v1.16.1** for server communication
+- **UserDefaults** for settings persistence
+- **Last.fm API** for scrobbling
+
+### Key Components
+
+- `PlayerEngine`: Central audio playback and queue management
+- `SubsonicClient`: Network layer for Subsonic API calls
+- `LastFMClient`: Last.fm API integration for scrobbling
+- `LibraryStore`: Manages music library cache and state
+- `TrackCache`: Local file caching for offline playback
+- `ImageCache`: Two-tier image caching (memory + disk)
+
+## Project Structure
+
+```
+Lune/
+├── API/              # Network clients (Subsonic, Last.fm, Lyrics)
+├── App/              # Main app entry and content routing
+├── Audio/            # Playback engine and bridge
+├── Cache/            # Track and image caching
+├── Components/       # Reusable UI components
+├── Models/           # Data models
+├── Persistence/      # Settings and configuration
+├── Utilities/        # Helper functions
+└── Views/            # UI views by feature
+    ├── Library/      # Artists, albums, songs, genres
+    ├── NowPlaying/   # Player UI
+    ├── Playlists/    # Playlist management
+    ├── Queue/        # Queue view
+    ├── Search/       # Search interface
+    ├── Settings/     # Settings and onboarding
+    └── Sidebar/      # Navigation sidebar
+```
+
+## Development
+
+### Adding Features
+
+1. Create new feature branches from `main`
+2. Build with `xcodebuild -scheme Lune build`
+3. Test in Xcode with Cmd+R
+4. Commit with clear messages
+
+### Code Style
+
+- Follow Swift style guidelines
+- Use SwiftUI for new UI components
+- Mark concurrent code with `@MainActor` or `nonisolated` as appropriate
+- No external dependencies (uses system frameworks only)
+
+## License
+
+Private repository.
+
+## Contact
+
+Built with Navidrome 🎵
