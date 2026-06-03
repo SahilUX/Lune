@@ -47,6 +47,11 @@ struct ContentView: View {
                 showNowPlaying = true
             }
         }
+        // F key to open full-screen player
+        .onKeyPress("f") {
+            openFullPlayer()
+            return .handled
+        }
     }
 
     // MARK: - Full-screen helpers
@@ -93,11 +98,6 @@ struct ContentView: View {
             .padding(.leading, 12)
         }
         .toolbar(showNowPlaying || showFullPlayer ? .hidden : .automatic, for: .windowToolbar)
-        .overlay(alignment: .topLeading) {
-            Button("") { openFullPlayer() }
-                .keyboardShortcut("f", modifiers: [])
-                .hidden()
-        }
     }
 
     @ViewBuilder
