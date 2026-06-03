@@ -42,6 +42,10 @@ struct LastFMStatsView: View {
                 }
             }
             .navigationTitle("Last.fm")
+            .navigationDestination(for: Album.self) { AlbumDetailView(album: $0) }
+            .navigationDestination(for: Artist.self) { artist in
+                ArtistDetailView(artist: artist)
+            }
         }
     }
 }
@@ -93,6 +97,8 @@ struct RecentScrobblesTab: View {
 struct ScrobbleRow: View {
     let track: [String: Any]
     let isNowPlaying: Bool
+    @State private var selectedAlbum: Album?
+    @Environment(LibraryStore.self) private var library
 
     var trackName: String {
         (track["name"] as? String) ?? "Unknown"
@@ -129,57 +135,74 @@ struct ScrobbleRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
-            if let imageURL {
-                AsyncImage(url: imageURL) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    case .failure:
-                        Image(systemName: "music.note")
-                            .foregroundStyle(.secondary)
-                    case .empty:
-                        SkeletonView()
-                    @unknown default:
-                        SkeletonView()
+        NavigationLink(value: selectedAlbum) {
+            HStack(spacing: 12) {
+                if let imageURL {
+                    AsyncImage(url: imageURL) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        case .failure:
+                            Image(systemName: "music.note")
+                                .foregroundStyle(.secondary)
+                        case .empty:
+                            SkeletonView()
+                        @unknown default:
+                            SkeletonView()
+                        }
                     }
-                }
-                .frame(width: 40, height: 40)
-                .clipped()
-                .cornerRadius(4)
-            } else {
-                Image(systemName: "music.note")
                     .frame(width: 40, height: 40)
-                    .foregroundStyle(.secondary)
-            }
+                    .clipped()
+                    .cornerRadius(4)
+                } else {
+                    Image(systemName: "music.note")
+                        .frame(width: 40, height: 40)
+                        .foregroundStyle(.secondary)
+                }
 
-            VStack(alignment: .leading, spacing: 2) {
-                HStack {
-                    Text(trackName)
-                        .font(.body)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack {
+                        Text(trackName)
+                            .font(.body)
+                            .lineLimit(1)
+                        if isNowPlaying {
+                            Text("Now Playing")
+                                .font(.caption)
+                                .foregroundStyle(.green)
+                        }
+                    }
+                    Text(artistName)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
-                    if isNowPlaying {
-                        Text("Now Playing")
-                            .font(.caption)
-                            .foregroundStyle(.green)
+                    if !timestamp.isEmpty {
+                        Text(timestamp)
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
                     }
                 }
-                Text(artistName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-                if !timestamp.isEmpty {
-                    Text(timestamp)
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-            }
 
-            Spacer()
+                Spacer()
+            }
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
+        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
+        .task {
+            await searchAndNavigate()
+        }
+    }
+
+    private func searchAndNavigate() async {
+        let query = "\(trackName) \(artistName)"
+        do {
+            let result = try await SubsonicClient.shared.search(query: query)
+            selectedAlbum = result.albums.first
+        } catch {
+            print("[Last.fm] Failed to search album: \(error)")
+        }
     }
 }
 
@@ -262,6 +285,7 @@ struct TopTracksTab: View {
 struct TopTrackCard: View {
     let track: [String: Any]
     let rank: Int
+    @State private var selectedAlbum: Album?
 
     var trackName: String {
         (track["name"] as? String) ?? "Unknown"
@@ -294,58 +318,75 @@ struct TopTrackCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 8) {
-            ZStack(alignment: .topLeading) {
-                if let imageURL {
-                    AsyncImage(url: imageURL) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure:
-                            Image(systemName: "music.note")
-                                .font(.system(size: 32))
-                                .foregroundStyle(.secondary)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .background(Color(nsColor: .controlBackgroundColor))
-                        case .empty:
-                            SkeletonView()
-                        @unknown default:
-                            SkeletonView()
+        NavigationLink(value: selectedAlbum) {
+            VStack(alignment: .center, spacing: 8) {
+                ZStack(alignment: .topLeading) {
+                    if let imageURL {
+                        AsyncImage(url: imageURL) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                Image(systemName: "music.note")
+                                    .font(.system(size: 32))
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color(nsColor: .controlBackgroundColor))
+                            case .empty:
+                                SkeletonView()
+                            @unknown default:
+                                SkeletonView()
+                            }
                         }
+                    } else {
+                        Color(nsColor: .controlBackgroundColor)
                     }
-                } else {
-                    Color(nsColor: .controlBackgroundColor)
+
+                    Text("#\(rank)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(6)
+                        .background(Color.black.opacity(0.5))
+                        .cornerRadius(4)
+                        .padding(6)
                 }
+                .aspectRatio(1, contentMode: .fill)
+                .clipped()
+                .cornerRadius(8)
 
-                Text("#\(rank)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(6)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(4)
-                    .padding(6)
+                VStack(alignment: .center, spacing: 2) {
+                    Text(trackName)
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+
+                    Text(artistName)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+
+                    Text("\(playCount) plays")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            .aspectRatio(1, contentMode: .fill)
-            .clipped()
-            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
+        .task {
+            await searchAndNavigate()
+        }
+    }
 
-            VStack(alignment: .center, spacing: 2) {
-                Text(trackName)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-
-                Text(artistName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                Text("\(playCount) plays")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+    private func searchAndNavigate() async {
+        let query = "\(trackName) \(artistName)"
+        do {
+            let result = try await SubsonicClient.shared.search(query: query)
+            selectedAlbum = result.albums.first
+        } catch {
+            print("[Last.fm] Failed to search album: \(error)")
         }
     }
 }
@@ -408,6 +449,7 @@ struct TopArtistsTab: View {
 struct TopArtistCard: View {
     let artist: [String: Any]
     let rank: Int
+    @State private var selectedArtist: Artist?
 
     var artistName: String {
         (artist["name"] as? String) ?? "Unknown"
@@ -432,53 +474,69 @@ struct TopArtistCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 8) {
-            ZStack(alignment: .topLeading) {
-                if let imageURL {
-                    AsyncImage(url: imageURL) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure:
-                            Image(systemName: "music.mic")
-                                .font(.system(size: 32))
-                                .foregroundStyle(.secondary)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .background(Color(nsColor: .controlBackgroundColor))
-                        case .empty:
-                            SkeletonView()
-                        @unknown default:
-                            SkeletonView()
+        NavigationLink(value: selectedArtist) {
+            VStack(alignment: .center, spacing: 8) {
+                ZStack(alignment: .topLeading) {
+                    if let imageURL {
+                        AsyncImage(url: imageURL) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                Image(systemName: "music.mic")
+                                    .font(.system(size: 32))
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color(nsColor: .controlBackgroundColor))
+                            case .empty:
+                                SkeletonView()
+                            @unknown default:
+                                SkeletonView()
+                            }
                         }
+                    } else {
+                        Color(nsColor: .controlBackgroundColor)
                     }
-                } else {
-                    Color(nsColor: .controlBackgroundColor)
+
+                    Text("#\(rank)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(6)
+                        .background(Color.black.opacity(0.5))
+                        .cornerRadius(4)
+                        .padding(6)
                 }
+                .aspectRatio(1, contentMode: .fill)
+                .clipped()
+                .cornerRadius(90)
 
-                Text("#\(rank)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(6)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(4)
-                    .padding(6)
+                VStack(alignment: .center, spacing: 2) {
+                    Text(artistName)
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+
+                    Text("\(playCount) plays")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            .aspectRatio(1, contentMode: .fill)
-            .clipped()
-            .cornerRadius(90)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
+        .task {
+            await searchAndNavigate()
+        }
+    }
 
-            VStack(alignment: .center, spacing: 2) {
-                Text(artistName)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-
-                Text("\(playCount) plays")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+    private func searchAndNavigate() async {
+        do {
+            let result = try await SubsonicClient.shared.search(query: artistName)
+            selectedArtist = result.artists.first
+        } catch {
+            print("[Last.fm] Failed to search artist: \(error)")
         }
     }
 }
@@ -541,6 +599,7 @@ struct TopAlbumsTab: View {
 struct TopAlbumCard: View {
     let album: [String: Any]
     let rank: Int
+    @State private var selectedAlbum: Album?
 
     var albumName: String {
         (album["name"] as? String) ?? "Unknown"
@@ -573,58 +632,75 @@ struct TopAlbumCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .center, spacing: 8) {
-            ZStack(alignment: .topLeading) {
-                if let imageURL {
-                    AsyncImage(url: imageURL) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        case .failure:
-                            Image(systemName: "square.stack")
-                                .font(.system(size: 32))
-                                .foregroundStyle(.secondary)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .background(Color(nsColor: .controlBackgroundColor))
-                        case .empty:
-                            SkeletonView()
-                        @unknown default:
-                            SkeletonView()
+        NavigationLink(value: selectedAlbum) {
+            VStack(alignment: .center, spacing: 8) {
+                ZStack(alignment: .topLeading) {
+                    if let imageURL {
+                        AsyncImage(url: imageURL) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            case .failure:
+                                Image(systemName: "square.stack")
+                                    .font(.system(size: 32))
+                                    .foregroundStyle(.secondary)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .background(Color(nsColor: .controlBackgroundColor))
+                            case .empty:
+                                SkeletonView()
+                            @unknown default:
+                                SkeletonView()
+                            }
                         }
+                    } else {
+                        Color(nsColor: .controlBackgroundColor)
                     }
-                } else {
-                    Color(nsColor: .controlBackgroundColor)
+
+                    Text("#\(rank)")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(6)
+                        .background(Color.black.opacity(0.5))
+                        .cornerRadius(4)
+                        .padding(6)
                 }
+                .aspectRatio(1, contentMode: .fill)
+                .clipped()
+                .cornerRadius(8)
 
-                Text("#\(rank)")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.white)
-                    .padding(6)
-                    .background(Color.black.opacity(0.5))
-                    .cornerRadius(4)
-                    .padding(6)
+                VStack(alignment: .center, spacing: 2) {
+                    Text(albumName)
+                        .font(.subheadline.weight(.semibold))
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+
+                    Text(artistName)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+
+                    Text("\(playCount) plays")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            .aspectRatio(1, contentMode: .fill)
-            .clipped()
-            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.primary)
+        .task {
+            await searchAndNavigate()
+        }
+    }
 
-            VStack(alignment: .center, spacing: 2) {
-                Text(albumName)
-                    .font(.subheadline.weight(.semibold))
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-
-                Text(artistName)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                Text("\(playCount) plays")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
+    private func searchAndNavigate() async {
+        let query = "\(albumName) \(artistName)"
+        do {
+            let result = try await SubsonicClient.shared.search(query: query)
+            selectedAlbum = result.albums.first
+        } catch {
+            print("[Last.fm] Failed to search album: \(error)")
         }
     }
 }
