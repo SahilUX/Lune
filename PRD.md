@@ -1,8 +1,8 @@
 # Product Requirements Document — Lune
 ### Native macOS Navidrome Client
-**Version:** 1.0  
-**Date:** 2026-05-29  
-**Status:** Draft
+**Version:** 1.1  
+**Date:** 2026-06-03  
+**Status:** In Progress
 
 ---
 
@@ -69,18 +69,19 @@ There is no purpose-built, native SwiftUI application for Navidrome on macOS.
 | F-11 | macOS media keys | Play/pause/next/prev via hardware keys and Touch Bar |
 | F-12 | Menu bar integration | Mini-player in menu bar, optional |
 | F-13 | Track caching | Cache streamed tracks to disk for offline playback |
-| F-14 | Scrobbling | Last.fm scrobble via Navidrome's built-in support |
+| F-14 | Scrobbling | Last.fm scrobbling with real-time now-playing updates |
+| F-15 | Last.fm stats | View listening stats: recent scrobbles, top tracks/artists/albums with time period filtering |
 
 ### 6.2 Enhanced (Should Have — v1.1)
 
 | ID | Feature |
 |---|---|
-| F-15 | Home screen with recents, most played, random albums |
-| F-16 | Multiple sort/filter options per view |
-| F-17 | Keyboard shortcuts (full set) |
-| F-18 | Lyrics display (synced if available) |
-| F-19 | ReplayGain / volume normalization |
-| F-20 | Podcast support |
+| F-16 | Home screen with recents, most played, random albums |
+| F-17 | Multiple sort/filter options per view |
+| F-18 | Keyboard shortcuts (full set) |
+| F-19 | Lyrics display (synced if available) |
+| F-20 | ReplayGain / volume normalization |
+| F-21 | Podcast support |
 
 ---
 
@@ -116,9 +117,10 @@ There is no purpose-built, native SwiftUI application for Navidrome on macOS.
 
 ## 10. Timeline
 
-| Milestone | Target |
-|---|---|
-| v0.1 — Playback + Browse | Week 2 |
-| v0.2 — Playlists + Queue | Week 3 |
-| v0.3 — Cache + Offline | Week 4 |
-| v1.0 — Polish + Release | Week 6 |
+| Milestone | Target | Status |
+|---|---|---|
+| v0.1 — Playback + Browse | Week 2 | ✅ Complete |
+| v0.2 — Playlists + Queue | Week 3 | ✅ Complete |
+| v0.3 — Cache + Last.fm Integration | Week 4 | ✅ Complete |
+| v0.4 — Last.fm Stats Dashboard | Week 5 | ✅ Complete |
+| v1.0 — Polish + Testing + Release | Week 7 | In Progress |

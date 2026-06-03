@@ -1,7 +1,7 @@
 # Design Document — Lune
 ### Native macOS Navidrome Client
-**Version:** 1.0  
-**Date:** 2026-05-29
+**Version:** 1.1  
+**Date:** 2026-06-03
 
 ---
 
@@ -48,6 +48,8 @@ The accent color is sampled from the dominant hue of the playing album's cover a
 │    Albums    │                                              │
 │    Songs     │                                              │
 │    Genres    │                                              │
+│    Favorites │                                              │
+│    Last.fm   │                                              │
 │  ── Playlists│                                              │
 │    + New     │                                              │
 │              │                                              │
@@ -74,6 +76,8 @@ The accent color is sampled from the dominant hue of the playing album's cover a
 
 **SearchView** — Inline results as user types, grouped by Artists / Albums / Songs.
 
+**LastFMStatsView** — Tabbed interface with 4 tabs: Recent Scrobbles (scrollable list), Top Tracks (grid), Top Artists (grid), Top Albums (grid). Tracks/Artists/Albums tabs include time period selector (7 Days, 1 Month, 3 Months, 6 Months, 1 Year, All Time). Grid cards display artwork, title, artist/rank, and play count. Loading state shows skeleton placeholders with shimmer animation.
+
 ---
 
 ## 3. Architecture
@@ -98,6 +102,7 @@ Lune/
 ├── API/
 │   ├── SubsonicClient.swift     # All API calls
 │   ├── SubsonicModels.swift     # Codable response types
+│   ├── LastFMClient.swift       # Last.fm API + OAuth flow
 │   └── APIError.swift
 ├── Audio/
 │   ├── PlayerEngine.swift       # AVPlayer wrapper, singleton
@@ -119,7 +124,10 @@ Lune/
 │   │   ├── ArtistListView.swift
 │   │   ├── AlbumGridView.swift
 │   │   ├── AlbumDetailView.swift
-│   │   └── SongListView.swift
+│   │   ├── SongListView.swift
+│   │   ├── GenreListView.swift
+│   │   ├── FavoritesView.swift
+│   │   └── LastFMStatsView.swift     # Recent scrobbles + top tracks/artists/albums
 │   ├── NowPlaying/
 │   │   ├── NowPlayingBar.swift
 │   │   └── NowPlayingView.swift
@@ -176,6 +184,25 @@ User taps Play
 | Playlists | `getPlaylists`, `getPlaylist`, `createPlaylist`, `updatePlaylist`, `deletePlaylist` |
 | Star/Unstar | `star`, `unstar` |
 | Scrobble | `scrobble` |
+
+### 3.6 Last.fm Integration
+**Authentication Flow:**
+1. User initiates "Sign in with Last.fm" in Settings
+2. `LastFMClient.getToken()` fetches auth token from Last.fm API
+3. `LastFMClient.openAuthPage(token:)` opens browser to Last.fm authorization page
+4. User approves + returns to Lune
+5. `LastFMClient.getSession(token:)` exchanges token for session key
+6. Session key + username stored in UserDefaults (persisted)
+
+**Scrobbling:**
+- `PlayerEngine` calls `LastFMClient.updateNowPlaying(song:)` when track starts
+- `PlayerEngine` calls `LastFMClient.scrobble(song:startedAt:duration:)` when track reaches 50% or 4 minutes (whichever comes first)
+- Both methods fire-and-forget (no UI blocking)
+
+**Stats:**
+- `LastFMStatsView` fetches via `LastFMClient.getRecentTracks()`, `.getTopTracks(period:)`, `.getTopArtists(period:)`, `.getTopAlbums(period:)`
+- All methods use Last.fm API with embedded app credentials (Secrets.swift)
+- Images loaded via `AsyncImage(url:)` directly from Last.fm URLs (not Subsonic cover art IDs)
 
 ---
 
@@ -238,6 +265,9 @@ Stored in `UserDefaults` (non-sensitive) and Keychain (password):
 | Cache size limit | UserDefaults | 2 GB |
 | Menu bar player enabled | UserDefaults | false |
 | ReplayGain mode | UserDefaults | Track |
+| Last.fm session key | UserDefaults | — |
+| Last.fm username | UserDefaults | — |
+| Last.fm scrobbling enabled | UserDefaults | false |
 
 ---
 

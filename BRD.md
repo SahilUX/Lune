@@ -1,8 +1,8 @@
 # Business Requirements Document — Lune
 ### Native macOS Navidrome Client
-**Version:** 1.0  
-**Date:** 2026-05-29  
-**Status:** Draft
+**Version:** 1.1  
+**Date:** 2026-06-03  
+**Status:** In Progress
 
 ---
 
@@ -49,7 +49,10 @@ The client must work with any Subsonic-compatible server (Navidrome, Airsonic, F
 ### BR-05: Quality Bar
 The application must meet Apple's Human Interface Guidelines and be comparable in quality and feel to first-party Apple apps (Music, Podcasts). A mediocre app damages credibility more than no app.
 
-### BR-06: Community Signals
+### BR-06: Last.fm Integration
+v1.0 includes Last.fm scrobbling and stats dashboard (recent listens, top tracks/artists/albums by time period). This provides music discovery and tracking features that enhance engagement and differentiate Lune from simpler clients.
+
+### BR-07: Community Signals
 Success of v1.0 is measured partly by GitHub stars, community forum mentions, and Reddit/HN reception in self-hosting communities.
 
 ---
@@ -67,6 +70,7 @@ Success of v1.0 is measured partly by GitHub stars, community forum mentions, an
 | Dependency | Owner | Risk |
 |---|---|---|
 | Subsonic API | Navidrome project | Low — stable, versioned |
+| Last.fm API | Last.fm | Medium — requires user auth, rate limits apply |
 | AVFoundation | Apple | Low — first-party |
 | macOS 14 SDK | Apple | Low |
 | Keychain Services | Apple | Low |
