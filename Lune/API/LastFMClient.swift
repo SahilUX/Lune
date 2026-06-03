@@ -93,7 +93,7 @@ actor LastFMClient {
               UserDefaults.standard.bool(forKey: "lastfmEnabled") else { return }
 
         let elapsedSeconds = Int(Date().timeIntervalSince(startedAt))
-        let minPlayedSeconds = min(duration / 2, 240) // 50% or 4 min
+        let minPlayedSeconds = min(duration / 2, 240)
 
         guard elapsedSeconds >= minPlayedSeconds else { return }
 
