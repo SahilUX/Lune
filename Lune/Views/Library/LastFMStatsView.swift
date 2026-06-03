@@ -287,6 +287,13 @@ struct TopTracksTab: View {
         isLoading = true
         do {
             tracks = try await LastFMClient.shared.getTopTracks(period: period, limit: 50)
+            if let firstTrack = tracks.first {
+                if let images = firstTrack["image"] {
+                    print("[Last.fm] First track images: \(images)")
+                } else {
+                    print("[Last.fm] No images in first track")
+                }
+            }
         } catch {
             print("[Last.fm] Failed to load top tracks: \(error)")
         }
@@ -344,12 +351,13 @@ struct TopTrackCard: View {
                                 image
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                            case .failure:
+                            case .failure(let error):
                                 Image(systemName: "music.note")
                                     .font(.system(size: 32))
                                     .foregroundStyle(.secondary)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                                     .background(Color(nsColor: .controlBackgroundColor))
+                                    .onAppear { print("[Last.fm] Image load failed for \(trackName): \(error)") }
                             case .empty:
                                 SkeletonView()
                             @unknown default:
@@ -357,7 +365,12 @@ struct TopTrackCard: View {
                             }
                         }
                     } else {
-                        Color(nsColor: .controlBackgroundColor)
+                        Image(systemName: "music.note")
+                            .font(.system(size: 32))
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color(nsColor: .controlBackgroundColor))
+                            .onAppear { print("[Last.fm] No image URL found for: \(trackName)") }
                     }
 
                     Text("#\(rank)")
