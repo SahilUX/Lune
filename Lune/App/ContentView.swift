@@ -93,6 +93,11 @@ struct ContentView: View {
             .padding(.leading, 12)
         }
         .toolbar(showNowPlaying || showFullPlayer ? .hidden : .automatic, for: .windowToolbar)
+        .overlay(alignment: .topLeading) {
+            Button("") { openFullPlayer() }
+                .keyboardShortcut("f", modifiers: [])
+                .hidden()
+        }
     }
 
     @ViewBuilder

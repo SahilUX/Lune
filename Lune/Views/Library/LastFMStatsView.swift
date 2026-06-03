@@ -14,30 +14,37 @@ struct LastFMStatsView: View {
                         description: Text("Sign in to Last.fm in Settings to view your stats.")
                     )
                 } else {
-                    TabView(selection: $selectedTab) {
-                        RecentScrobblesTab()
-                            .tag(0)
-                            .tabItem {
-                                Label("Recent", systemImage: "clock")
+                    VStack(spacing: 0) {
+                        // Tab switcher with toggle buttons
+                        HStack(spacing: 8) {
+                            TabToggleButton(label: "Recent", icon: "clock", isSelected: selectedTab == 0) {
+                                selectedTab = 0
                             }
+                            TabToggleButton(label: "Tracks", icon: "music.note", isSelected: selectedTab == 1) {
+                                selectedTab = 1
+                            }
+                            TabToggleButton(label: "Artists", icon: "music.mic", isSelected: selectedTab == 2) {
+                                selectedTab = 2
+                            }
+                            TabToggleButton(label: "Albums", icon: "square.stack", isSelected: selectedTab == 3) {
+                                selectedTab = 3
+                            }
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
 
-                        TopTracksTab()
-                            .tag(1)
-                            .tabItem {
-                                Label("Tracks", systemImage: "music.note")
-                            }
+                        Divider()
 
-                        TopArtistsTab()
-                            .tag(2)
-                            .tabItem {
-                                Label("Artists", systemImage: "music.mic")
+                        // Tab content
+                        Group {
+                            switch selectedTab {
+                            case 0: RecentScrobblesTab()
+                            case 1: TopTracksTab()
+                            case 2: TopArtistsTab()
+                            default: TopAlbumsTab()
                             }
-
-                        TopAlbumsTab()
-                            .tag(3)
-                            .tabItem {
-                                Label("Albums", systemImage: "square.stack")
-                            }
+                        }
                     }
                 }
             }
@@ -47,6 +54,26 @@ struct LastFMStatsView: View {
                 ArtistDetailView(artist: artist)
             }
         }
+    }
+}
+
+struct TabToggleButton: View {
+    let label: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                Text(label)
+            }
+            .font(.subheadline.weight(.medium))
+        }
+        .buttonStyle(.bordered)
+        .tint(isSelected ? .accentColor : nil)
+        .opacity(isSelected ? 1 : 0.6)
     }
 }
 
