@@ -196,9 +196,14 @@ struct ScrobbleRow: View {
     }
 
     private func searchAndNavigate() async {
-        let query = "\(trackName) \(artistName)"
         do {
-            let result = try await SubsonicClient.shared.search(query: query)
+            var result = try await SubsonicClient.shared.search(query: "\(trackName) \(artistName)")
+
+            // If no results and artist is "Unknown", try just the track name
+            if result.albums.isEmpty && artistName == "Unknown" {
+                result = try await SubsonicClient.shared.search(query: trackName)
+            }
+
             selectedAlbum = result.albums.first
         } catch {
             print("[Last.fm] Failed to search album: \(error)")
@@ -381,9 +386,14 @@ struct TopTrackCard: View {
     }
 
     private func searchAndNavigate() async {
-        let query = "\(trackName) \(artistName)"
         do {
-            let result = try await SubsonicClient.shared.search(query: query)
+            var result = try await SubsonicClient.shared.search(query: "\(trackName) \(artistName)")
+
+            // If no results and artist is "Unknown", try just the track name
+            if result.albums.isEmpty && artistName == "Unknown" {
+                result = try await SubsonicClient.shared.search(query: trackName)
+            }
+
             selectedAlbum = result.albums.first
         } catch {
             print("[Last.fm] Failed to search album: \(error)")
@@ -695,9 +705,14 @@ struct TopAlbumCard: View {
     }
 
     private func searchAndNavigate() async {
-        let query = "\(albumName) \(artistName)"
         do {
-            let result = try await SubsonicClient.shared.search(query: query)
+            var result = try await SubsonicClient.shared.search(query: "\(albumName) \(artistName)")
+
+            // If no results and artist is "Unknown", try just the album name
+            if result.albums.isEmpty && artistName == "Unknown" {
+                result = try await SubsonicClient.shared.search(query: albumName)
+            }
+
             selectedAlbum = result.albums.first
         } catch {
             print("[Last.fm] Failed to search album: \(error)")
