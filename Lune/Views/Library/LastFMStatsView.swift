@@ -122,12 +122,16 @@ struct ScrobbleRow: View {
 
     var imageURL: URL? {
         if let images = track["image"] as? [[String: Any]] {
-            for image in images.reversed() {
-                if let size = image["size"] as? String,
-                   size == "extralarge",
-                   let url = image["#text"] as? String,
-                   !url.isEmpty {
-                    return URL(string: url)
+            // Try sizes in order: extralarge, large, medium, small
+            let preferredSizes = ["extralarge", "large", "medium", "small"]
+            for size in preferredSizes {
+                for image in images {
+                    if let imageSize = image["size"] as? String,
+                       imageSize == size,
+                       let url = image["#text"] as? String,
+                       !url.isEmpty {
+                        return URL(string: url)
+                    }
                 }
             }
         }
@@ -205,6 +209,9 @@ struct ScrobbleRow: View {
             }
 
             selectedAlbum = result.albums.first
+            if selectedAlbum != nil && imageURL != nil {
+                print("[Last.fm] Found album for: \(trackName)")
+            }
         } catch {
             print("[Last.fm] Failed to search album: \(error)")
         }
@@ -310,12 +317,16 @@ struct TopTrackCard: View {
 
     var imageURL: URL? {
         if let images = track["image"] as? [[String: Any]] {
-            for image in images.reversed() {
-                if let size = image["size"] as? String,
-                   size == "extralarge",
-                   let url = image["#text"] as? String,
-                   !url.isEmpty {
-                    return URL(string: url)
+            // Try sizes in order: extralarge, large, medium, small
+            let preferredSizes = ["extralarge", "large", "medium", "small"]
+            for size in preferredSizes {
+                for image in images {
+                    if let imageSize = image["size"] as? String,
+                       imageSize == size,
+                       let url = image["#text"] as? String,
+                       !url.isEmpty {
+                        return URL(string: url)
+                    }
                 }
             }
         }
@@ -395,6 +406,9 @@ struct TopTrackCard: View {
             }
 
             selectedAlbum = result.albums.first
+            if selectedAlbum != nil && imageURL != nil {
+                print("[Last.fm] Found album for: \(trackName)")
+            }
         } catch {
             print("[Last.fm] Failed to search album: \(error)")
         }
