@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SidebarItem: Hashable {
-    case artists, albums, songs, genres, favorites
+    case artists, albums, songs, genres, favorites, lastFMStats
     case playlist(String)
 }
 
@@ -37,6 +37,8 @@ struct SidebarView: View {
                     .tag(SidebarItem.genres)
                 Label("Favorites", systemImage: "heart.fill")
                     .tag(SidebarItem.favorites)
+                Label("Last.fm", systemImage: "chart.bar.fill")
+                    .tag(SidebarItem.lastFMStats)
             }
 
             Section("Playlists") {

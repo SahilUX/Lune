@@ -2,6 +2,26 @@ import Foundation
 import AppKit
 import CryptoKit
 
+enum LastFMPeriod: String, CaseIterable {
+    case week = "7day"
+    case month = "1month"
+    case threeMonths = "3month"
+    case sixMonths = "6month"
+    case year = "12month"
+    case overall = "overall"
+
+    var label: String {
+        switch self {
+        case .week: return "7 Days"
+        case .month: return "1 Month"
+        case .threeMonths: return "3 Months"
+        case .sixMonths: return "6 Months"
+        case .year: return "1 Year"
+        case .overall: return "All Time"
+        }
+    }
+}
+
 actor LastFMClient {
     static let shared = LastFMClient()
 
@@ -75,6 +95,195 @@ actor LastFMClient {
     func disconnect() async {
         sessionKey = nil
         username = nil
+    }
+
+    // MARK: - Stats
+
+    nonisolated func getRecentTracks(limit: Int = 50) async throws -> [[String: Any]] {
+        guard let username = UserDefaults.standard.string(forKey: "lastfmUsername") else {
+            throw LastFMError.notAuthenticated
+        }
+
+        var params: [String: String] = [
+            "method": "user.getRecentTracks",
+            "user": username,
+            "limit": String(limit),
+            "api_key": LastFMSecrets.apiKey,
+            "format": "json"
+        ]
+        let apiSecret = LastFMSecrets.apiSecret
+        let sorted = params
+            .filter { $0.key != "format" && $0.key != "callback" }
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)\($0.value)" }
+            .joined()
+        let toSign = sorted + apiSecret
+        let digest = Insecure.MD5.hash(data: toSign.data(using: .utf8) ?? Data())
+        let apiSig = digest.map { String(format: "%02hhx", $0) }.joined()
+
+        params["api_sig"] = apiSig
+
+        var components = URLComponents(string: "https://ws.audioscrobbler.com/2.0/")!
+        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
+
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw LastFMError.decodingFailed
+        }
+
+        if let error = json["error"] as? Int {
+            throw LastFMError.apiError(code: error, message: json["message"] as? String ?? "Unknown")
+        }
+
+        guard let tracks = json["recenttracks"] as? [String: Any],
+              let trackArray = tracks["track"] as? [[String: Any]] else {
+            throw LastFMError.decodingFailed
+        }
+        return trackArray
+    }
+
+    nonisolated func getTopTracks(period: LastFMPeriod, limit: Int = 50) async throws -> [[String: Any]] {
+        guard let username = UserDefaults.standard.string(forKey: "lastfmUsername") else {
+            throw LastFMError.notAuthenticated
+        }
+
+        var params: [String: String] = [
+            "method": "user.getTopTracks",
+            "user": username,
+            "period": period.rawValue,
+            "limit": String(limit),
+            "api_key": LastFMSecrets.apiKey,
+            "format": "json"
+        ]
+        let apiSecret = LastFMSecrets.apiSecret
+        let sorted = params
+            .filter { $0.key != "format" && $0.key != "callback" }
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)\($0.value)" }
+            .joined()
+        let toSign = sorted + apiSecret
+        let digest = Insecure.MD5.hash(data: toSign.data(using: .utf8) ?? Data())
+        let apiSig = digest.map { String(format: "%02hhx", $0) }.joined()
+
+        params["api_sig"] = apiSig
+
+        var components = URLComponents(string: "https://ws.audioscrobbler.com/2.0/")!
+        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
+
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw LastFMError.decodingFailed
+        }
+
+        if let error = json["error"] as? Int {
+            throw LastFMError.apiError(code: error, message: json["message"] as? String ?? "Unknown")
+        }
+
+        guard let tracks = json["toptracks"] as? [String: Any],
+              let trackArray = tracks["track"] as? [[String: Any]] else {
+            throw LastFMError.decodingFailed
+        }
+        return trackArray
+    }
+
+    nonisolated func getTopArtists(period: LastFMPeriod, limit: Int = 50) async throws -> [[String: Any]] {
+        guard let username = UserDefaults.standard.string(forKey: "lastfmUsername") else {
+            throw LastFMError.notAuthenticated
+        }
+
+        var params: [String: String] = [
+            "method": "user.getTopArtists",
+            "user": username,
+            "period": period.rawValue,
+            "limit": String(limit),
+            "api_key": LastFMSecrets.apiKey,
+            "format": "json"
+        ]
+        let apiSecret = LastFMSecrets.apiSecret
+        let sorted = params
+            .filter { $0.key != "format" && $0.key != "callback" }
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)\($0.value)" }
+            .joined()
+        let toSign = sorted + apiSecret
+        let digest = Insecure.MD5.hash(data: toSign.data(using: .utf8) ?? Data())
+        let apiSig = digest.map { String(format: "%02hhx", $0) }.joined()
+
+        params["api_sig"] = apiSig
+
+        var components = URLComponents(string: "https://ws.audioscrobbler.com/2.0/")!
+        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
+
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw LastFMError.decodingFailed
+        }
+
+        if let error = json["error"] as? Int {
+            throw LastFMError.apiError(code: error, message: json["message"] as? String ?? "Unknown")
+        }
+
+        guard let artists = json["topartists"] as? [String: Any],
+              let artistArray = artists["artist"] as? [[String: Any]] else {
+            throw LastFMError.decodingFailed
+        }
+        return artistArray
+    }
+
+    nonisolated func getTopAlbums(period: LastFMPeriod, limit: Int = 50) async throws -> [[String: Any]] {
+        guard let username = UserDefaults.standard.string(forKey: "lastfmUsername") else {
+            throw LastFMError.notAuthenticated
+        }
+
+        var params: [String: String] = [
+            "method": "user.getTopAlbums",
+            "user": username,
+            "period": period.rawValue,
+            "limit": String(limit),
+            "api_key": LastFMSecrets.apiKey,
+            "format": "json"
+        ]
+        let apiSecret = LastFMSecrets.apiSecret
+        let sorted = params
+            .filter { $0.key != "format" && $0.key != "callback" }
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)\($0.value)" }
+            .joined()
+        let toSign = sorted + apiSecret
+        let digest = Insecure.MD5.hash(data: toSign.data(using: .utf8) ?? Data())
+        let apiSig = digest.map { String(format: "%02hhx", $0) }.joined()
+
+        params["api_sig"] = apiSig
+
+        var components = URLComponents(string: "https://ws.audioscrobbler.com/2.0/")!
+        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
+
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw LastFMError.decodingFailed
+        }
+
+        if let error = json["error"] as? Int {
+            throw LastFMError.apiError(code: error, message: json["message"] as? String ?? "Unknown")
+        }
+
+        guard let albums = json["topalbums"] as? [String: Any],
+              let albumArray = albums["album"] as? [[String: Any]] else {
+            throw LastFMError.decodingFailed
+        }
+        return albumArray
     }
 
     // MARK: - Scrobbling
@@ -177,6 +386,7 @@ enum LastFMError: Error, LocalizedError {
     case invalidSession
     case decodingFailed
     case apiError(code: Int, message: String)
+    case notAuthenticated
 
     var errorDescription: String? {
         switch self {
@@ -188,6 +398,8 @@ enum LastFMError: Error, LocalizedError {
             return "Failed to decode Last.fm response"
         case .apiError(let code, let message):
             return "Last.fm error \(code): \(message)"
+        case .notAuthenticated:
+            return "Not authenticated with Last.fm"
         }
     }
 }

@@ -103,6 +103,7 @@ struct ContentView: View {
         case .songs:     SongListView()
         case .genres:    GenreListView()
         case .favorites: FavoritesView()
+        case .lastFMStats: LastFMStatsView()
         case .playlist(let id): PlaylistDetailView(playlistId: id)
         case nil:        AlbumGridView()
         }

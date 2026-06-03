@@ -12,6 +12,7 @@
 		0EA4210215E625F932353606 /* LuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */; };
 		111A63B68E58AC9059113FEE /* SubsonicModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1EDD2E607970BA8871521F /* SubsonicModels.swift */; };
 		11CB7B17E3C6E2772CBD1F41 /* TrackCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B4B7F3D7585EB3ABC0ACC78 /* TrackCache.swift */; };
+		1869493E6A5F015AAFDF051A /* LastFMStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A117999BE8739C682349FF1C /* LastFMStatsView.swift */; };
 		2EBBC8D7208B22B200D009BE /* AlbumGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97E0CBD5876569943994C61 /* AlbumGridView.swift */; };
 		312144264C1A9488777C3E9B /* FullPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C199A50EF2488233B28523 /* FullPlayerView.swift */; };
 		39AC0CDD7D1BB40CAD554CF2 /* NowPlayingBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81A10959EB2C028C2FDA07FC /* NowPlayingBridge.swift */; };
@@ -73,6 +74,7 @@
 		89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LuneApp.swift; sourceTree = "<group>"; };
 		96A32AB6F3AF9B22D3280AEF /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		9B4B7F3D7585EB3ABC0ACC78 /* TrackCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackCache.swift; sourceTree = "<group>"; };
+		A117999BE8739C682349FF1C /* LastFMStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastFMStatsView.swift; sourceTree = "<group>"; };
 		A3A4E8A68C81277876327542 /* SongListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongListView.swift; sourceTree = "<group>"; };
 		A6A657692D6AD75F2AF21ADA /* RecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordView.swift; sourceTree = "<group>"; };
 		AC66CE8D505722F602A5CFCE /* PlaybackCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackCommands.swift; sourceTree = "<group>"; };
@@ -280,6 +282,7 @@
 				B1E1288F989F8A1F73C1D7A4 /* ArtistListView.swift */,
 				617ADD0A25D931AFD7430CC7 /* GenreListView.swift */,
 				563AAE58A7BFF35F54B32E24 /* HeartButton.swift */,
+				A117999BE8739C682349FF1C /* LastFMStatsView.swift */,
 				A3A4E8A68C81277876327542 /* SongListView.swift */,
 			);
 			path = Library;
@@ -367,6 +370,7 @@
 				A8449D5298C0789CA541C9F3 /* HeartButton.swift in Sources */,
 				0CB4C26A08397BD788BC7C74 /* ImageCache.swift in Sources */,
 				584E8FD2982472D7B2282663 /* LastFMClient.swift in Sources */,
+				1869493E6A5F015AAFDF051A /* LastFMStatsView.swift in Sources */,
 				68BFFF6E6637F57AA2824C29 /* LibraryStore.swift in Sources */,
 				0EA4210215E625F932353606 /* LuneApp.swift in Sources */,
 				71FE28661CD4949DD3352D1C /* Lyrics.swift in Sources */,
