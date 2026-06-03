@@ -170,10 +170,8 @@ final class PlayerEngine {
         avPlayer.replaceCurrentItem(with: item)
         nowPlayingBridge?.update(song: song)
         Task {
-            let apiKey = UserDefaults.standard.string(forKey: "lastfmAPIKey") ?? ""
-            let apiSecret = UserDefaults.standard.string(forKey: "lastfmAPISecret") ?? ""
             try? await SubsonicClient.shared.scrobble(id: song.id, submission: false)
-            await LastFMClient.shared.updateNowPlaying(song: song, apiKey: apiKey, apiSecret: apiSecret)
+            await LastFMClient.shared.updateNowPlaying(song: song)
             currentLyrics = await LyricsService.shared.lyrics(for: song)
         }
     }
@@ -210,9 +208,7 @@ final class PlayerEngine {
             Task {
                 try? await SubsonicClient.shared.scrobble(id: song.id, submission: true)
                 if let started = trackStartTime {
-                    let apiKey = UserDefaults.standard.string(forKey: "lastfmAPIKey") ?? ""
-                    let apiSecret = UserDefaults.standard.string(forKey: "lastfmAPISecret") ?? ""
-                    await LastFMClient.shared.scrobble(song: song, startedAt: started, duration: song.duration, apiKey: apiKey, apiSecret: apiSecret)
+                    await LastFMClient.shared.scrobble(song: song, startedAt: started, duration: song.duration)
                 }
             }
         }

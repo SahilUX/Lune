@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08915B07F8372359E3BE57CD /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE8482A709E26AE3D63D064 /* Secrets.swift */; };
 		0CB4C26A08397BD788BC7C74 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F2D433ABA795F3AB9A77E6 /* ImageCache.swift */; };
 		0EA4210215E625F932353606 /* LuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */; };
 		111A63B68E58AC9059113FEE /* SubsonicModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1EDD2E607970BA8871521F /* SubsonicModels.swift */; };
@@ -36,6 +37,7 @@
 		B2F1798E914843C8DE2EADCE /* SubsonicClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F25B0CC91FB9B6FBA76C30 /* SubsonicClient.swift */; };
 		BC4385A5D4802B227B87A251 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F6199E447433289B78062A /* OnboardingView.swift */; };
 		BD4AAA4602689F34D3F788C7 /* AlbumDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3664EF90969A7A2BD351731 /* AlbumDetailView.swift */; };
+		CD1BED4E33F82069EB7A10AC /* Secrets.swift.template in Resources */ = {isa = PBXBuildFile; fileRef = 54F009DE2A7823521E013BE2 /* Secrets.swift.template */; };
 		CEC354F1EBD9614DC35A6400 /* NowPlayingBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4530BDD06B9E2F1A3ED0FC9E /* NowPlayingBar.swift */; };
 		DE226BAF2D0AF57EF527ACE4 /* SongListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A4E8A68C81277876327542 /* SongListView.swift */; };
 		F641446DF4732B74EE888127 /* DurationFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E7989C36D8988E4853441F1 /* DurationFormatter.swift */; };
@@ -51,8 +53,10 @@
 		18DD0111D3FC8C3D81825AC2 /* LibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryStore.swift; sourceTree = "<group>"; };
 		1FDCBA73F322582703584C65 /* Lune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2E1EDD2E607970BA8871521F /* SubsonicModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicModels.swift; sourceTree = "<group>"; };
+		3AE8482A709E26AE3D63D064 /* Secrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Secrets.swift; sourceTree = "<group>"; };
 		40AFC6613F8B6128CD95B1D4 /* MenuBarPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPlayerView.swift; sourceTree = "<group>"; };
 		4530BDD06B9E2F1A3ED0FC9E /* NowPlayingBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingBar.swift; sourceTree = "<group>"; };
+		54F009DE2A7823521E013BE2 /* Secrets.swift.template */ = {isa = PBXFileReference; path = Secrets.swift.template; sourceTree = "<group>"; };
 		55351C40028A8ED7AC1C5084 /* SkeletonLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoader.swift; sourceTree = "<group>"; };
 		563AAE58A7BFF35F54B32E24 /* HeartButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartButton.swift; sourceTree = "<group>"; };
 		58F25B0CC91FB9B6FBA76C30 /* SubsonicClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubsonicClient.swift; sourceTree = "<group>"; };
@@ -135,6 +139,7 @@
 				754729427EFA08127258E8C5 /* Audio */,
 				5DFB592267624EC43869A85D /* Cache */,
 				B091A3BA7CAE4AA21B94AEB0 /* Components */,
+				D8A312921F89776F770F824C /* Config */,
 				604F6DF0AA490C9ACF597A16 /* Models */,
 				9E00D433BFCE14FF954F0EFD /* Persistence */,
 				F33416DC08B36735B5AF2522 /* Utilities */,
@@ -250,6 +255,15 @@
 			path = Queue;
 			sourceTree = "<group>";
 		};
+		D8A312921F89776F770F824C /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				3AE8482A709E26AE3D63D064 /* Secrets.swift */,
+				54F009DE2A7823521E013BE2 /* Secrets.swift.template */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		F33416DC08B36735B5AF2522 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -279,6 +293,7 @@
 			buildConfigurationList = 13C7ABB6B2B37A353F8F269E /* Build configuration list for PBXNativeTarget "Lune" */;
 			buildPhases = (
 				6F5AD3876A26EB2956F6D9D9 /* Sources */,
+				89DA22984EA0D3227134D12E /* Resources */,
 			);
 			buildRules = (
 			);
@@ -301,6 +316,7 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					061C126FBD14604C70B0A33D = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -323,6 +339,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		89DA22984EA0D3227134D12E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CD1BED4E33F82069EB7A10AC /* Secrets.swift.template in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6F5AD3876A26EB2956F6D9D9 /* Sources */ = {
@@ -355,6 +382,7 @@
 				5516E30B3C9EDAA59835B1D8 /* QueueView.swift in Sources */,
 				46E09F2835C147633C4580AA /* RecordView.swift in Sources */,
 				9DE8B1774F4BCF5A5E4C8950 /* SearchView.swift in Sources */,
+				08915B07F8372359E3BE57CD /* Secrets.swift in Sources */,
 				524BF5B79BE65B29C0684F34 /* SettingsView.swift in Sources */,
 				6D3570A2F375C0F60CFB2B83 /* SidebarView.swift in Sources */,
 				4251C8D62727FD210C518A44 /* SkeletonLoader.swift in Sources */,
@@ -374,9 +402,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Lune/Lune.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 627Y9R25T5;
 				INFOPLIST_FILE = Lune/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -392,9 +418,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Lune/Lune.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 627Y9R25T5;
 				INFOPLIST_FILE = Lune/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

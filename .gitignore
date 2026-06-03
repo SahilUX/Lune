@@ -1,0 +1,35 @@
+# Secrets
+Lune/Config/Secrets.swift
+
+# Xcode
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace
+!default.xcworkspace
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Swift Package Manager
+.build/
+.swiftpm/
+*.xcarchive
+
+# Cocoapods
+Pods/
+Podfile.lock

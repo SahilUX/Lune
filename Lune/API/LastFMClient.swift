@@ -5,6 +5,8 @@ import CryptoKit
 actor LastFMClient {
     static let shared = LastFMClient()
 
+    private let apiKey = LastFMSecrets.apiKey
+    private let apiSecret = LastFMSecrets.apiSecret
     private let baseURL = "https://ws.audioscrobbler.com/2.0/"
     private var isAuthenticating = false
 
@@ -24,7 +26,7 @@ actor LastFMClient {
 
     // MARK: - Auth Flow
 
-    func getToken(apiKey: String, apiSecret: String) async throws -> String {
+    func getToken() async throws -> String {
         guard !isAuthenticating else { return "" }
         isAuthenticating = true
         defer { isAuthenticating = false }
@@ -43,14 +45,14 @@ actor LastFMClient {
         return token
     }
 
-    nonisolated func openAuthPage(token: String, apiKey: String) {
+    func openAuthPage(token: String) {
         let urlString = "https://www.last.fm/api/auth/?api_key=\(apiKey)&token=\(token)"
         if let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
         }
     }
 
-    func getSession(token: String, apiKey: String, apiSecret: String) async throws {
+    func getSession(token: String) async throws {
         var params: [String: String] = [
             "method": "auth.getSession",
             "token": token,
@@ -77,31 +79,16 @@ actor LastFMClient {
 
     // MARK: - Scrobbling
 
-    nonisolated func updateNowPlaying(
-        song: Song,
-        apiKey: String,
-        apiSecret: String
-    ) {
+    func updateNowPlaying(song: Song) {
         guard let sessionKey = UserDefaults.standard.string(forKey: "lastfmSessionKey"),
               UserDefaults.standard.bool(forKey: "lastfmEnabled") else { return }
 
         Task {
-            await _updateNowPlaying(
-                song: song,
-                sessionKey: sessionKey,
-                apiKey: apiKey,
-                apiSecret: apiSecret
-            )
+            await _updateNowPlaying(song: song, sessionKey: sessionKey)
         }
     }
 
-    nonisolated func scrobble(
-        song: Song,
-        startedAt: Date,
-        duration: Int,
-        apiKey: String,
-        apiSecret: String
-    ) {
+    func scrobble(song: Song, startedAt: Date, duration: Int) {
         guard let sessionKey = UserDefaults.standard.string(forKey: "lastfmSessionKey"),
               UserDefaults.standard.bool(forKey: "lastfmEnabled") else { return }
 
@@ -111,24 +98,13 @@ actor LastFMClient {
         guard elapsedSeconds >= minPlayedSeconds else { return }
 
         Task {
-            await _scrobble(
-                song: song,
-                startedAt: startedAt,
-                sessionKey: sessionKey,
-                apiKey: apiKey,
-                apiSecret: apiSecret
-            )
+            await _scrobble(song: song, startedAt: startedAt, sessionKey: sessionKey)
         }
     }
 
     // MARK: - Private
 
-    private func _updateNowPlaying(
-        song: Song,
-        sessionKey: String,
-        apiKey: String,
-        apiSecret: String
-    ) async {
+    private func _updateNowPlaying(song: Song, sessionKey: String) async {
         var params: [String: String] = [
             "method": "track.updateNowPlaying",
             "track": song.title,
@@ -144,13 +120,7 @@ actor LastFMClient {
         _ = try? await makeRequest(params, method: "POST")
     }
 
-    private func _scrobble(
-        song: Song,
-        startedAt: Date,
-        sessionKey: String,
-        apiKey: String,
-        apiSecret: String
-    ) async {
+    private func _scrobble(song: Song, startedAt: Date, sessionKey: String) async {
         var params: [String: String] = [
             "method": "track.scrobble",
             "track": song.title,

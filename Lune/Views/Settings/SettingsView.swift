@@ -9,8 +9,6 @@ struct SettingsView: View {
     @State private var isVerifying = false
     @State private var verifyMessage = ""
     @State private var verifySuccess = false
-    @State private var lastfmAPIKey = ""
-    @State private var lastfmAPISecret = ""
     @State private var lastfmAuthStep: LastFMAuthStep = .idle
     @State private var lastfmToken = ""
     @State private var lastfmIsAuthenticating = false
@@ -155,16 +153,6 @@ struct SettingsView: View {
 
     private var lastfmTab: some View {
         Form {
-            Section("API Credentials") {
-                TextField("API Key", text: $lastfmAPIKey)
-                    .help("Get from https://www.last.fm/api/account/create")
-                    .onSubmit { UserDefaults.standard.set(lastfmAPIKey, forKey: "lastfmAPIKey") }
-
-                SecureField("API Secret", text: $lastfmAPISecret)
-                    .help("Get from https://www.last.fm/api/account/create")
-                    .onSubmit { UserDefaults.standard.set(lastfmAPISecret, forKey: "lastfmAPISecret") }
-            }
-
             Section("Account") {
                 if let username = UserDefaults.standard.string(forKey: "lastfmUsername"), !username.isEmpty {
                     Label("Connected as \(username)", systemImage: "checkmark.circle.fill")
@@ -179,10 +167,9 @@ struct SettingsView: View {
                 } else {
                     switch lastfmAuthStep {
                     case .idle:
-                        Button("Connect Last.fm") {
+                        Button("Sign in with Last.fm") {
                             Task { await startLastFMAuth() }
                         }
-                        .disabled(lastfmAPIKey.isEmpty || lastfmAPISecret.isEmpty)
 
                     case .authorized:
                         Button("I've authorized — Finish connecting") {
@@ -222,8 +209,6 @@ struct SettingsView: View {
     }
 
     private func prefillLastFM() {
-        lastfmAPIKey = UserDefaults.standard.string(forKey: "lastfmAPIKey") ?? ""
-        lastfmAPISecret = UserDefaults.standard.string(forKey: "lastfmAPISecret") ?? ""
         lastfmAuthStep = .idle
         lastfmToken = ""
     }
@@ -252,8 +237,8 @@ struct SettingsView: View {
     private func startLastFMAuth() async {
         lastfmIsAuthenticating = true
         do {
-            lastfmToken = try await LastFMClient.shared.getToken(apiKey: lastfmAPIKey, apiSecret: lastfmAPISecret)
-            LastFMClient.shared.openAuthPage(token: lastfmToken, apiKey: lastfmAPIKey)
+            lastfmToken = try await LastFMClient.shared.getToken()
+            await LastFMClient.shared.openAuthPage(token: lastfmToken)
             lastfmAuthStep = .authorized
         } catch {
             print("Failed to get Last.fm token: \(error)")
@@ -264,9 +249,7 @@ struct SettingsView: View {
     private func finishLastFMAuth() async {
         lastfmIsAuthenticating = true
         do {
-            try await LastFMClient.shared.getSession(token: lastfmToken, apiKey: lastfmAPIKey, apiSecret: lastfmAPISecret)
-            UserDefaults.standard.set(lastfmAPIKey, forKey: "lastfmAPIKey")
-            UserDefaults.standard.set(lastfmAPISecret, forKey: "lastfmAPISecret")
+            try await LastFMClient.shared.getSession(token: lastfmToken)
             UserDefaults.standard.set(true, forKey: "lastfmEnabled")
             prefillLastFM()
         } catch {
