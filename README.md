@@ -113,7 +113,7 @@ Lune/
 
 ## License
 
-Private repository.
+MIT. See [LICENSE](LICENSE).
 
 ## Contact
 
