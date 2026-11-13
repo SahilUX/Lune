@@ -21,9 +21,18 @@ A native macOS music client for Navidrome/Subsonic servers with Last.fm scrobbli
 
 - macOS 14.0+
 - Navidrome or Subsonic server
-- Swift 6.0
+- Swift 6.0 (only to build from source)
 
-## Building
+## Install
+
+1. Download `Lune-<version>.dmg` from the [latest release](https://github.com/SahilUX/Lune/releases/latest).
+2. Open the DMG.
+3. Drag **Lune** onto the **Applications** shortcut in the same window.
+4. Eject the DMG and open Lune from Applications or Launchpad.
+
+The DMG is signed with a Developer ID certificate and notarized by Apple, so it opens without Gatekeeper warnings.
+
+## Building from source
 
 1. Clone the repository
 2. Open `Lune.xcodeproj` in Xcode
@@ -127,6 +136,13 @@ Lune/
 6. Staples the ticket to the DMG and checks it with `stapler validate` and `spctl -t open`.
 
 The only output is `~/Downloads/Lune-<version>/Lune-<version>.dmg`. The version comes from `CFBundleShortVersionString` in `Lune/Info.plist`.
+
+To publish it, merge your changes to `main`, run the script from the main checkout, then attach the DMG to a GitHub release:
+
+```sh
+gh release create v<version> ~/Downloads/Lune-<version>/Lune-<version>.dmg \
+  --title "Lune <version>" --generate-notes
+```
 
 Run it from the main checkout, where the real `Lune/Config/Secrets.swift` lives (it is gitignored, so worktrees only get the template). Run it from a normal terminal session: signing and notarytool need full access to the login keychain.
 
