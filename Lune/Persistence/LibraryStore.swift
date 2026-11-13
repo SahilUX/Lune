@@ -27,7 +27,7 @@ final class LibraryStore {
         serverConfig = config
         let data = try! JSONEncoder().encode(config)
         UserDefaults.standard.set(data, forKey: "serverConfig")
-        UserDefaults.standard.set(password, forKey: "serverPassword")
+        KeychainStore.store(password, for: .serverPassword)
         Task { await SubsonicClient.shared.configure(config: config, password: password) }
     }
 
@@ -35,7 +35,7 @@ final class LibraryStore {
         guard let data = UserDefaults.standard.data(forKey: "serverConfig"),
               let config = try? JSONDecoder().decode(ServerConfig.self, from: data) else { return }
         serverConfig = config
-        let password = UserDefaults.standard.string(forKey: "serverPassword") ?? ""
+        let password = KeychainStore.value(for: .serverPassword) ?? ""
         Task { await SubsonicClient.shared.configure(config: config, password: password) }
     }
 

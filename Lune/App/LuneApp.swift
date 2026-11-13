@@ -4,7 +4,13 @@ import SwiftUI
 struct LuneApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var playerEngine = PlayerEngine.shared
-    @State private var libraryStore = LibraryStore.shared
+    @State private var libraryStore: LibraryStore
+
+    init() {
+        // Before anything reads a secret.
+        KeychainStore.migrateFromUserDefaults()
+        _libraryStore = State(initialValue: LibraryStore.shared)
+    }
 
     var body: some Scene {
         WindowGroup {

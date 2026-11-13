@@ -31,8 +31,8 @@ actor LastFMClient {
     private var isAuthenticating = false
 
     var sessionKey: String? {
-        get { UserDefaults.standard.string(forKey: "lastfmSessionKey") }
-        set { UserDefaults.standard.set(newValue, forKey: "lastfmSessionKey") }
+        get { KeychainStore.value(for: .lastfmSessionKey) }
+        set { KeychainStore.store(newValue, for: .lastfmSessionKey) }
     }
 
     var username: String? {
@@ -289,7 +289,7 @@ actor LastFMClient {
     // MARK: - Scrobbling
 
     func updateNowPlaying(song: Song) {
-        guard let sessionKey = UserDefaults.standard.string(forKey: "lastfmSessionKey"),
+        guard let sessionKey,
               UserDefaults.standard.bool(forKey: "lastfmEnabled") else { return }
 
         Task {
@@ -298,7 +298,7 @@ actor LastFMClient {
     }
 
     func scrobble(song: Song, startedAt: Date, duration: Int) {
-        guard let sessionKey = UserDefaults.standard.string(forKey: "lastfmSessionKey"),
+        guard let sessionKey,
               UserDefaults.standard.bool(forKey: "lastfmEnabled") else { return }
 
         let elapsedSeconds = Int(Date().timeIntervalSince(startedAt))
