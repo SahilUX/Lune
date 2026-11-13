@@ -96,7 +96,8 @@ struct RecentScrobblesTab: View {
                 ContentUnavailableView("No scrobbles yet", systemImage: "music.note")
             } else {
                 ScrollView {
-                    VStack(spacing: 8) {
+                    // Lazy, so only the rows on screen start their library lookup.
+                    LazyVStack(spacing: 8) {
                         ForEach(tracks.indices, id: \.self) { index in
                             ScrobbleRow(track: tracks[index], isNowPlaying: index == 0 && tracks[index]["nowplaying"] != nil)
                         }

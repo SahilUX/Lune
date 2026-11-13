@@ -31,6 +31,13 @@ final class LibraryStore {
         Task { await SubsonicClient.shared.configure(config: config, password: password) }
     }
 
+    /// Points the client back at the saved server, e.g. after Settings tried other credentials.
+    func restoreSavedServerConfig() {
+        guard let config = serverConfig else { return }
+        let password = KeychainStore.value(for: .serverPassword) ?? ""
+        Task { await SubsonicClient.shared.configure(config: config, password: password) }
+    }
+
     private func loadServerConfig() {
         guard let data = UserDefaults.standard.data(forKey: "serverConfig"),
               let config = try? JSONDecoder().decode(ServerConfig.self, from: data) else { return }
@@ -46,7 +53,7 @@ final class LibraryStore {
         await MainActor.run { isLoading = true; error = nil }
         do {
             async let artistsTask = SubsonicClient.shared.getArtists()
-            async let albumsTask = SubsonicClient.shared.getAlbumList(type: .alphabeticalByName, size: 500)
+            async let albumsTask = loadAllAlbums()
             async let playlistsTask = SubsonicClient.shared.getPlaylists()
             async let songsTask = SubsonicClient.shared.getAllSongs()
             async let starredTask = SubsonicClient.shared.getStarred()
@@ -64,6 +71,18 @@ final class LibraryStore {
                 self.error = error.localizedDescription
                 isLoading = false
             }
+        }
+    }
+
+    /// The server caps a page at 500 albums, so keep asking until a page comes back short.
+    private func loadAllAlbums() async throws -> [Album] {
+        let pageSize = 500
+        var all: [Album] = []
+        while true {
+            let page = try await SubsonicClient.shared.getAlbumList(
+                type: .alphabeticalByName, size: pageSize, offset: all.count)
+            all.append(contentsOf: page)
+            if page.count < pageSize { return all }
         }
     }
 

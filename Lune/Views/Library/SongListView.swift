@@ -7,7 +7,24 @@ struct SongListView: View {
     @State private var sortOrder = SongSortOrder.title
     @State private var selectedIds: Set<String> = []
 
-    private var songs: [Song] {
+    /// The filtered, sorted list. Computed when its inputs change, not on every render:
+    /// sorting a big library on each body evaluation made the view stall.
+    @State private var songs: [Song] = []
+
+    private struct Inputs: Equatable {
+        var count: Int
+        var firstID: String?
+        var lastID: String?
+        var search: String
+        var sort: SongSortOrder
+    }
+
+    private var inputs: Inputs {
+        Inputs(count: library.songs.count, firstID: library.songs.first?.id, lastID: library.songs.last?.id,
+               search: searchText, sort: sortOrder)
+    }
+
+    private func recompute() {
         var result = library.songs
         if !searchText.isEmpty {
             result = result.filter {
@@ -16,10 +33,10 @@ struct SongListView: View {
             }
         }
         switch sortOrder {
-        case .title:    return result.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
-        case .artist:   return result.sorted { $0.artist.localizedCaseInsensitiveCompare($1.artist) == .orderedAscending }
-        case .album:    return result.sorted { $0.album.localizedCaseInsensitiveCompare($1.album) == .orderedAscending }
-        case .duration: return result.sorted { $0.duration < $1.duration }
+        case .title:    songs = result.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        case .artist:   songs = result.sorted { $0.artist.localizedCaseInsensitiveCompare($1.artist) == .orderedAscending }
+        case .album:    songs = result.sorted { $0.album.localizedCaseInsensitiveCompare($1.album) == .orderedAscending }
+        case .duration: songs = result.sorted { $0.duration < $1.duration }
         }
     }
 
@@ -31,11 +48,17 @@ struct SongListView: View {
                 }
             } else {
                 ForEach(songs) { song in
-                    SongRow(song: song, showAlbum: true)
+                    SongRow(song: song, showAlbum: true, collection: songs)
                 }
             }
         }
         .listStyle(.plain)
+        .task(id: inputs) {
+            // Let typing settle before re-filtering a large library.
+            if !searchText.isEmpty { try? await Task.sleep(for: .milliseconds(150)) }
+            guard !Task.isCancelled else { return }
+            recompute()
+        }
         .navigationTitle("Songs")
         .searchable(text: $searchText, prompt: "Search songs")
         .toolbar {
@@ -53,10 +76,13 @@ struct SongListView: View {
 struct SongRow: View {
     let song: Song
     var showAlbum: Bool = true
+    /// The list this row is shown in, in display order. Tapping the row plays it from here,
+    /// so the queue is the album/playlist on screen rather than just this one song.
+    var collection: [Song]? = nil
     @Environment(PlayerEngine.self) private var player
     @Environment(LibraryStore.self) private var library
 
-    var isPlaying: Bool { player.currentSong?.id == song.id }
+    var isPlaying: Bool { player.currentSongID == song.id }
 
     var body: some View {
         HStack(spacing: 10) {
@@ -109,6 +135,7 @@ struct SongRow: View {
                     .foregroundStyle(.primary)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Add to Queue")
 
             HeartButton(song: song)
 
@@ -133,7 +160,11 @@ struct SongRow: View {
         .padding(.vertical, 4)
         .contentShape(Rectangle())
         .onTapGesture {
-            player.play(song: song)
+            if let collection, let index = collection.firstIndex(where: { $0.id == song.id }) {
+                player.play(songs: collection, startingAt: index)
+            } else {
+                player.play(song: song)
+            }
         }
     }
 }

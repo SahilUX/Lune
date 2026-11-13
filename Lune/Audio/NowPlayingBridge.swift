@@ -22,9 +22,8 @@ final class NowPlayingBridge {
         ]
         // Note: MPMediaItemArtwork crashes on macOS Sequoia due to internal
         // dispatch_barrier_async queue assertion. Artwork is disabled for stability.
-        DispatchQueue.main.async {
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = info
-        }
+        // Already on the main actor. Deferring this let an older track's update land after a newer one.
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 
     func updatePlaybackState() {
@@ -32,9 +31,12 @@ final class NowPlayingBridge {
         let isPlaying = engine?.isPlaying ?? false
         info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
         info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = engine?.currentTime ?? 0
-        DispatchQueue.main.async {
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = info
-        }
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    }
+
+    /// Removes the track from the system's Now Playing controls (queue cleared).
+    func clear() {
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
     private func setupRemoteCommands() {
@@ -42,6 +44,7 @@ final class NowPlayingBridge {
 
         center.playCommand.isEnabled = true
         center.playCommand.addTarget { [weak self] _ in
+            guard self?.engine != nil else { return .commandFailed }
             DispatchQueue.main.async {
                 guard let engine = self?.engine else { return }
                 if !engine.isPlaying { engine.togglePlayPause() }
@@ -50,6 +53,7 @@ final class NowPlayingBridge {
         }
         center.pauseCommand.isEnabled = true
         center.pauseCommand.addTarget { [weak self] _ in
+            guard self?.engine != nil else { return .commandFailed }
             DispatchQueue.main.async {
                 guard let engine = self?.engine else { return }
                 if engine.isPlaying { engine.togglePlayPause() }

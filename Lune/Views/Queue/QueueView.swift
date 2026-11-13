@@ -7,7 +7,7 @@ struct QueueView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(Array(player.queue.enumerated()), id: \.element.id) { index, song in
+                ForEach(Array(player.queue.enumerated()), id: \.offset) { index, song in
                     HStack(spacing: 10) {
                         // Playing indicator or index
                         Group {

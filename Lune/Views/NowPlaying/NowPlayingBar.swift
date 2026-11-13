@@ -121,7 +121,7 @@ struct SeekBar: View {
     var body: some View {
         // Sample AVPlayer every frame while playing so the thumb glides instead of
         // jumping on the engine's 0.5s time-observer ticks.
-        TimelineView(.animation(paused: !player.isPlaying || isDragging)) { _ in
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !player.isPlaying || isDragging)) { _ in
             let position = isDragging ? dragValue : player.livePosition()
             HStack(spacing: 8) {
                 Text(format(position))

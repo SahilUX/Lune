@@ -61,15 +61,17 @@ struct SearchView: View {
             .navigationDestination(for: Artist.self) { ArtistDetailView(artist: $0) }
             .navigationDestination(for: Album.self) { AlbumDetailView(album: $0) }
         }
-        .onChange(of: query) { _, new in
-            guard !new.isEmpty else { result = nil; return }
-            Task {
-                try? await Task.sleep(for: .milliseconds(300))
-                guard query == new else { return }
-                isSearching = true
-                result = try? await SubsonicClient.shared.search(query: new)
-                isSearching = false
-            }
+        // A new keystroke cancels the previous task, so a slow earlier search can never
+        // overwrite a later one (or repopulate results after the field was cleared).
+        .task(id: query) {
+            guard !query.isEmpty else { result = nil; isSearching = false; return }
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            isSearching = true
+            let found = try? await SubsonicClient.shared.search(query: query)
+            guard !Task.isCancelled else { return }
+            result = found
+            isSearching = false
         }
     }
 }
