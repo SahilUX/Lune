@@ -128,8 +128,18 @@ struct SeekBar: View {
                     .font(.caption2).foregroundStyle(.secondary)
                     .monospacedDigit().frame(width: 36, alignment: .trailing)
 
+                // One binding for the whole gesture. Swapping bindings when the drag
+                // starts (or re-creating one every TimelineView frame) makes the slider
+                // lose the drag, so the thumb snaps back to the playback position.
                 Slider(
-                    value: isDragging ? $dragValue : Binding(get: { position }, set: { player.seek(to: $0) }),
+                    value: Binding(
+                        get: { isDragging ? dragValue : position },
+                        set: { newValue in
+                            dragValue = newValue
+                            // A change outside a drag (keyboard, accessibility) seeks right away.
+                            if !isDragging { player.seek(to: newValue) }
+                        }
+                    ),
                     in: 0...(max(player.duration, 1))
                 ) { editing in
                     if editing { dragValue = player.livePosition() }
