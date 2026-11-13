@@ -7,6 +7,7 @@ struct OnboardingView: View {
     @State private var password = ""
     @State private var isConnecting = false
     @State private var error = ""
+    @State private var untrustedCertificate: UntrustedCertificate?
 
     var body: some View {
         VStack(spacing: 32) {
@@ -58,6 +59,9 @@ struct OnboardingView: View {
         }
         .padding()
         .frame(minWidth: 500, minHeight: 400)
+        .certificateTrustPrompt($untrustedCertificate) {
+            Task { await connect() }
+        }
     }
 
     private func connect() async {
@@ -70,7 +74,11 @@ struct OnboardingView: View {
             library.saveServerConfig(config, password: password)
             await library.loadLibrary()
         } catch let e {
-            error = e.localizedDescription
+            if let cert = e as? UntrustedCertificate {
+                untrustedCertificate = cert
+            } else {
+                error = e.localizedDescription
+            }
         }
         isConnecting = false
     }

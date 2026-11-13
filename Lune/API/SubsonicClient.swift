@@ -106,9 +106,10 @@ actor SubsonicClient {
                     let result: T = try await fetchWithBuilder(remote, endpoint: endpoint, params: params)
                     preferRemote = true  // Successfully switched; prefer remote going forward
                     return result
-                } catch {
-                    // Remote also failed; return the original error
-                    throw error
+                } catch let remoteError {
+                    // Remote also failed. A certificate problem on the primary is
+                    // the one the user can act on, so report it over a generic failure.
+                    throw error is UntrustedCertificate && !(remoteError is UntrustedCertificate) ? error : remoteError
                 }
             }
             // No fallback available
@@ -119,7 +120,13 @@ actor SubsonicClient {
     private func fetchWithBuilder<T: Decodable>(_ builder: SubsonicURLBuilder?, endpoint: String, params: [URLQueryItem] = []) async throws -> T {
         guard let builder = builder else { throw APIError.notConfigured }
         let url = try builder.buildURL(endpoint: endpoint, params: params)
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await TrustedSession.shared.data(from: url)
+        } catch {
+            throw ServerTrust.shared.mapError(error, host: url.host)
+        }
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw APIError.httpError((response as? HTTPURLResponse)?.statusCode ?? -1)
         }

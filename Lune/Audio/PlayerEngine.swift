@@ -10,6 +10,8 @@ final class PlayerEngine {
     }()
 
     private let avPlayer = AVPlayer()
+    /// Keeps the loader alive for the current item (AVFoundation holds its delegate weakly).
+    private var assetLoader: PinnedAssetLoader?
     private(set) var queue: [Song] = []
     private(set) var currentIndex: Int = -1
     private(set) var isPlaying = false
@@ -143,7 +145,15 @@ final class PlayerEngine {
     }
 
     private func setItem(url: URL, song: Song) {
-        let item = AVPlayerItem(url: url)
+        assetLoader?.invalidate()
+        let item: AVPlayerItem
+        if let loader = PinnedAssetLoader.make(for: url) {
+            assetLoader = loader
+            item = AVPlayerItem(asset: loader.asset)
+        } else {
+            assetLoader = nil
+            item = AVPlayerItem(url: url)
+        }
         statusObserver = item.observe(\.status, options: [.new]) { [weak self] item, _ in
             DispatchQueue.main.async {
                 switch item.status {
