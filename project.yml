@@ -1,6 +1,6 @@
 name: Lune
 options:
-  bundleIdPrefix: com.lune
+  bundleIdPrefix: com.sahil
   deploymentTarget:
     macOS: "14.0"
   xcodeVersion: "16"
@@ -12,10 +12,10 @@ settings:
     SWIFT_VERSION: "6.0"
     ENABLE_HARDENED_RUNTIME: YES
     CODE_SIGN_STYLE: Automatic
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: 627Y9R25T5
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     INFOPLIST_FILE: Lune/Info.plist
-    PRODUCT_BUNDLE_IDENTIFIER: com.lune.app
+    PRODUCT_BUNDLE_IDENTIFIER: com.sahil.lune
 
 targets:
   Lune:
@@ -28,7 +28,7 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Lune/Info.plist
-        PRODUCT_BUNDLE_IDENTIFIER: com.lune.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.sahil.lune
         CODE_SIGN_ENTITLEMENTS: Lune/Lune.entitlements
     entitlements:
       path: Lune/Lune.entitlements
