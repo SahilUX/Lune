@@ -111,6 +111,23 @@ Lune/
 - Mark concurrent code with `@MainActor` or `nonisolated` as appropriate
 - No external dependencies (uses system frameworks only)
 
+## Releasing
+
+`scripts/release.sh` builds a notarized Developer ID release:
+
+1. Archives the Release configuration.
+2. Exports it with `ExportOptions.plist` (method `developer-id`, team `627Y9R25T5`, automatic signing).
+3. Zips the app, submits it with `xcrun notarytool submit --keychain-profile lune-notary --wait`, and prints the notary log if Apple rejects it.
+4. Staples the ticket, checks it with `stapler validate` and `spctl`, and zips the stapled app again.
+
+The stapled `Lune.app` and `Lune.zip` land in `~/Downloads/Lune-<version>/`. The version comes from `CFBundleShortVersionString` in `Lune/Info.plist`.
+
+Before the first run you need:
+
+- A **Developer ID Application** certificate for team `627Y9R25T5` in the login keychain.
+- A notarytool profile: `xcrun notarytool store-credentials lune-notary --team-id 627Y9R25T5` (set `NOTARY_PROFILE` to use another name).
+- `Lune/Config/Secrets.swift` with real Last.fm keys. The script warns if it still has the template placeholders.
+
 ## License
 
 Copyright (c) 2026 Sahil Saleem. Licensed under GPL-3.0: you may reuse, change and sell it, but anything you distribute that includes it must stay GPL-3.0 with source. See [LICENSE](LICENSE).
