@@ -92,6 +92,13 @@ final class PlayerEngine {
         loadAndPlay(song: queue[prev])
     }
 
+    /// Current position read straight from AVPlayer. `currentTime` only updates every 0.5s,
+    /// so views that draw a moving progress bar sample this each frame instead.
+    func livePosition() -> Double {
+        let t = avPlayer.currentTime().seconds
+        return t.isFinite ? max(t, 0) : currentTime
+    }
+
     func seek(to time: Double) {
         let cmTime = CMTime(seconds: time, preferredTimescale: 600)
         avPlayer.seek(to: cmTime, toleranceBefore: .zero, toleranceAfter: .zero)
