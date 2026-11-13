@@ -83,17 +83,15 @@ struct ContentView: View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(selection: $selectedSidebarItem)
         } detail: {
-            ZStack {
-                NavigationStack {
-                    destinationView(for: selectedSidebarItem)
-                }
-
-                VStack {
-                    Spacer()
-                    NowPlayingBar(showNowPlaying: $showNowPlaying)
-                }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 12)
+            NavigationStack {
+                destinationView(for: selectedSidebarItem)
+            }
+            // An inset (not an overlay) so scrollable content stops above the
+            // floating bar and the last row can scroll clear of it.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                NowPlayingBar(showNowPlaying: $showNowPlaying)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
             }
             .padding(.leading, 12)
         }
