@@ -118,25 +118,29 @@ struct SeekBar: View {
     @State private var isDragging = false
     @State private var dragValue: Double = 0
 
-    private var displayTime: Double { isDragging ? dragValue : player.currentTime }
-
     var body: some View {
-        HStack(spacing: 8) {
-            Text(format(displayTime))
-                .font(.caption2).foregroundStyle(.secondary)
-                .monospacedDigit().frame(width: 36, alignment: .trailing)
+        // Sample AVPlayer every frame while playing so the thumb glides instead of
+        // jumping on the engine's 0.5s time-observer ticks.
+        TimelineView(.animation(paused: !player.isPlaying || isDragging)) { _ in
+            let position = isDragging ? dragValue : player.livePosition()
+            HStack(spacing: 8) {
+                Text(format(position))
+                    .font(.caption2).foregroundStyle(.secondary)
+                    .monospacedDigit().frame(width: 36, alignment: .trailing)
 
-            Slider(
-                value: isDragging ? $dragValue : Binding(get: { player.currentTime }, set: { player.seek(to: $0) }),
-                in: 0...(max(player.duration, 1))
-            ) { editing in
-                isDragging = editing
-                if !editing { player.seek(to: dragValue) }
+                Slider(
+                    value: isDragging ? $dragValue : Binding(get: { position }, set: { player.seek(to: $0) }),
+                    in: 0...(max(player.duration, 1))
+                ) { editing in
+                    if editing { dragValue = player.livePosition() }
+                    isDragging = editing
+                    if !editing { player.seek(to: dragValue) }
+                }
+
+                Text(format(player.duration))
+                    .font(.caption2).foregroundStyle(.secondary)
+                    .monospacedDigit().frame(width: 36, alignment: .leading)
             }
-
-            Text(format(player.duration))
-                .font(.caption2).foregroundStyle(.secondary)
-                .monospacedDigit().frame(width: 36, alignment: .leading)
         }
     }
 
