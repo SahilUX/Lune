@@ -113,14 +113,18 @@ Lune/
 
 ## Releasing
 
-`scripts/release.sh` builds a notarized Developer ID release:
+`scripts/release.sh` builds a notarized Developer ID DMG:
 
 1. Archives the Release configuration.
 2. Exports it with `ExportOptions.plist` (method `developer-id`, team `627Y9R25T5`, automatic signing).
-3. Zips the app, submits it with `xcrun notarytool submit --keychain-profile lune-notary --wait`, and prints the notary log if Apple rejects it.
-4. Staples the ticket, checks it with `stapler validate` and `spctl`, and zips the stapled app again.
+3. Builds the DMG with `hdiutil`: `Lune.app` plus an `/Applications` link, UDZO compressed, volume name "Lune".
+4. Signs the DMG with the Developer ID Application identity for team `627Y9R25T5`.
+5. Submits the DMG with `xcrun notarytool submit --keychain-profile lune-notary --wait`, and prints the notary log if Apple rejects it.
+6. Staples the ticket to the DMG and checks it with `stapler validate` and `spctl -t open`.
 
-The stapled `Lune.app` and `Lune.zip` land in `~/Downloads/Lune-<version>/`. The version comes from `CFBundleShortVersionString` in `Lune/Info.plist`.
+The only output is `~/Downloads/Lune-<version>/Lune-<version>.dmg`. The version comes from `CFBundleShortVersionString` in `Lune/Info.plist`.
+
+Run it from the main checkout, where the real `Lune/Config/Secrets.swift` lives (it is gitignored, so worktrees only get the template). Run it from a normal terminal session: signing and notarytool need full access to the login keychain.
 
 Before the first run you need:
 
