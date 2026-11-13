@@ -9,6 +9,8 @@ struct SettingsView: View {
     @State private var isVerifying = false
     @State private var verifyMessage = ""
     @State private var verifySuccess = false
+    @State private var untrustedCertificate: UntrustedCertificate?
+    @State private var trustedHosts: [String] = []
     @State private var lastfmAuthStep: LastFMAuthStep = .idle
     @State private var lastfmToken = ""
     @State private var lastfmIsAuthenticating = false
@@ -22,6 +24,10 @@ struct SettingsView: View {
         }
         .frame(width: 520, height: 340)
         .onAppear { prefill() }
+        .certificateTrustPrompt($untrustedCertificate) {
+            trustedHosts = ServerTrust.shared.trustedHosts
+            Task { await testConnection() }
+        }
     }
 
     private var serverTab: some View {
@@ -37,6 +43,21 @@ struct SettingsView: View {
 
                 TextField("Username", text: $username)
                 SecureField("Password", text: $password)
+            }
+
+            if !trustedHosts.isEmpty {
+                Section("Trusted Certificates") {
+                    ForEach(trustedHosts, id: \.self) { host in
+                        HStack {
+                            Text(host)
+                            Spacer()
+                            Button("Forget") {
+                                ServerTrust.shared.forget(host: host)
+                                trustedHosts = ServerTrust.shared.trustedHosts
+                            }
+                        }
+                    }
+                }
             }
 
             HStack {
@@ -200,6 +221,7 @@ struct SettingsView: View {
     }
 
     private func prefill() {
+        trustedHosts = ServerTrust.shared.trustedHosts
         if let config = library.serverConfig {
             localURL = config.localURL ?? ""
             remoteURL = config.remoteURL ?? ""
@@ -228,8 +250,12 @@ struct SettingsView: View {
             verifyMessage = "Connected"
             verifySuccess = true
         } catch {
-            verifyMessage = error.localizedDescription
-            verifySuccess = false
+            if let cert = error as? UntrustedCertificate {
+                untrustedCertificate = cert
+            } else {
+                verifyMessage = error.localizedDescription
+                verifySuccess = false
+            }
         }
         isVerifying = false
     }

@@ -26,7 +26,7 @@ actor ImageCache {
         }
 
         guard let url = try? SubsonicClient.shared.coverArtURL(id: id, size: size),
-              let (data, _) = try? await URLSession.shared.data(from: url),
+              let (data, _) = try? await TrustedSession.shared.data(from: url),
               let img = NSImage(data: data) else { return nil }
 
         memory.setObject(img, forKey: key)

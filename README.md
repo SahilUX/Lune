@@ -39,6 +39,10 @@ A native macOS music client for Navidrome/Subsonic servers with Last.fm scrobbli
 4. Click "Test Connection" to verify
 5. Click "Save"
 
+#### Self-signed certificates
+
+If your server uses a certificate macOS doesn't trust (self-signed, or from a private CA), Lune shows its SHA-256 fingerprint and asks whether to trust it. Trusting pins that exact certificate for that host: Lune accepts it only when it matches, and asks again if the certificate changes. Normal TLS checks stay on for everything else. Pinned hosts are listed under Settings > Server > Trusted Certificates, where you can forget them.
+
 ### Last.fm Scrobbling
 
 1. Register an app at [last.fm/api/account/create](https://www.last.fm/api/account/create)
