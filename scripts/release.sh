@@ -22,9 +22,15 @@ if [ ! -f Lune/Config/Secrets.swift ]; then
   echo "Missing Lune/Config/Secrets.swift (copy Secrets.swift.template and fill in Last.fm keys)." >&2
   exit 1
 fi
-if grep -q "YOUR_API_KEY_HERE" Lune/Config/Secrets.swift; then
-  echo "warning: Secrets.swift still has placeholder Last.fm keys; Last.fm won't work in this build." >&2
-fi
+# Check the string values, not the whole file: the setup comment mentions the
+# placeholder text too.
+for name in apiKey apiSecret; do
+  value=$(sed -nE "s/.*static let $name *= *\"([^\"]*)\".*/\1/p" Lune/Config/Secrets.swift | head -n1)
+  case "$value" in
+    ""|YOUR_*_HERE)
+      echo "warning: Secrets.swift has no real Last.fm $name; Last.fm won't work in this build." >&2 ;;
+  esac
+done
 
 rm -rf "$BUILD"
 mkdir -p "$BUILD"
