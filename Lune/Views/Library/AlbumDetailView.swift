@@ -7,6 +7,8 @@ struct AlbumDetailView: View {
     @State private var isLoading = true
 
     private var displayAlbum: Album { loadedAlbum ?? album }
+    /// Disc/track order. Display, Play and Add to Queue all use this, so they agree.
+    private var sortedSongs: [Song] { displayAlbum.songs.sorted(by: trackOrder) }
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -31,14 +33,14 @@ struct AlbumDetailView: View {
 
                 HStack(spacing: 12) {
                     Button {
-                        player.play(songs: displayAlbum.songs, startingAt: 0)
+                        player.play(songs: sortedSongs, startingAt: 0)
                     } label: {
                         Label("Play", systemImage: "play.fill")
                     }
                     .buttonStyle(.borderedProminent)
 
                     Button {
-                        player.enqueue(songs: displayAlbum.songs)
+                        player.enqueue(songs: sortedSongs)
                     } label: {
                         Label("Add to Queue", systemImage: "text.badge.plus")
                     }
@@ -54,9 +56,8 @@ struct AlbumDetailView: View {
 
             // Right: track list
             List {
-                let sorted = displayAlbum.songs.sorted(by: trackOrder)
-                ForEach(sorted) { song in
-                    SongRow(song: song, showAlbum: false)
+                ForEach(sortedSongs) { song in
+                    SongRow(song: song, showAlbum: false, collection: sortedSongs)
                 }
             }
             .listStyle(.plain)

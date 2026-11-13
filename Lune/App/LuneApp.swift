@@ -2,7 +2,6 @@ import SwiftUI
 
 @main
 struct LuneApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var playerEngine = PlayerEngine.shared
     @State private var libraryStore: LibraryStore
 
@@ -33,25 +32,3 @@ struct LuneApp: App {
         .menuBarExtraStyle(.window)
     }
 }
-
-class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        configureWindow()
-    }
-
-    func applicationDidBecomeActive(_ notification: Notification) {
-        configureWindow()
-    }
-
-    private func configureWindow() {
-        if let window = NSApp.windows.first {
-            window.minSize = NSSize(width: 1000, height: 850)
-            window.maxSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-            window.styleMask.insert(.titled)
-            window.styleMask.insert(.closable)
-            window.styleMask.insert(.miniaturizable)
-            window.styleMask.insert(.resizable)
-        }
-    }
-}
-

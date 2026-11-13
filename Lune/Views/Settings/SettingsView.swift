@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var lastfmAuthStep: LastFMAuthStep = .idle
     @State private var lastfmToken = ""
     @State private var lastfmIsAuthenticating = false
+    @State private var lastfmError: String?
 
     var body: some View {
         TabView {
@@ -165,7 +166,10 @@ struct SettingsView: View {
             }
 
             Button("Clear Cache", role: .destructive) {
-                // TODO: call TrackCache.shared.clear()
+                Task {
+                    await TrackCache.shared.clear()
+                    await ImageCache.shared.clear()
+                }
             }
         }
         .formStyle(.grouped)
@@ -191,11 +195,13 @@ struct SettingsView: View {
                         Button("Sign in with Last.fm") {
                             Task { await startLastFMAuth() }
                         }
+                        .disabled(lastfmIsAuthenticating)
 
                     case .authorized:
                         Button("I've authorized — Finish connecting") {
                             Task { await finishLastFMAuth() }
                         }
+                        .disabled(lastfmIsAuthenticating)
 
                         Button("Cancel", role: .cancel) {
                             lastfmAuthStep = .idle
@@ -204,6 +210,11 @@ struct SettingsView: View {
 
                     if lastfmIsAuthenticating {
                         ProgressView()
+                    }
+                    if let lastfmError {
+                        Label(lastfmError, systemImage: "exclamationmark.triangle")
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -244,6 +255,9 @@ struct SettingsView: View {
         isVerifying = true
         verifyMessage = ""
         let config = ServerConfig(localURL: localURL, remoteURL: remoteURL, username: username)
+        // The test points the shared client at whatever is typed here; put the saved server
+        // back afterwards so closing Settings without saving doesn't leave bad credentials live.
+        defer { library.restoreSavedServerConfig() }
         await SubsonicClient.shared.configure(config: config, password: password)
         do {
             try await SubsonicClient.shared.ping()
@@ -262,24 +276,26 @@ struct SettingsView: View {
 
     private func startLastFMAuth() async {
         lastfmIsAuthenticating = true
+        lastfmError = nil
         do {
             lastfmToken = try await LastFMClient.shared.getToken()
             await LastFMClient.shared.openAuthPage(token: lastfmToken)
             lastfmAuthStep = .authorized
         } catch {
-            print("Failed to get Last.fm token: \(error)")
+            lastfmError = "Couldn't reach Last.fm: \(error.localizedDescription)"
         }
         lastfmIsAuthenticating = false
     }
 
     private func finishLastFMAuth() async {
         lastfmIsAuthenticating = true
+        lastfmError = nil
         do {
             try await LastFMClient.shared.getSession(token: lastfmToken)
             UserDefaults.standard.set(true, forKey: "lastfmEnabled")
             prefillLastFM()
         } catch {
-            print("Failed to get Last.fm session: \(error)")
+            lastfmError = "Last.fm sign-in didn't finish: \(error.localizedDescription)"
         }
         lastfmIsAuthenticating = false
     }

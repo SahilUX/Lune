@@ -28,6 +28,7 @@ struct HeartButton: View {
                 .font(.system(size: 13))
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(isStarred ? "Remove from Favorites" : "Add to Favorites")
         // Only sync external changes when we're not mid-animation
         .onChange(of: initiallyStarred) { _, new in
             guard !isAnimating else { return }
@@ -57,7 +58,11 @@ struct HeartButton: View {
         withAnimation(.spring(response: 0.22, dampingFraction: 0.3)) { scale = 1.65 }
         withAnimation(.spring(response: 0.22, dampingFraction: 0.55).delay(0.16)) { scale = 1.0 }
         Task {
-            try? await SubsonicClient.shared.star(id: songId)
+            do {
+                try await SubsonicClient.shared.star(id: songId)
+            } catch {
+                isStarred = false   // the server didn't take it, so don't show it as a favorite
+            }
             isAnimating = false
         }
     }
@@ -92,7 +97,11 @@ struct HeartButton: View {
             scale = 1
             withAnimation(.easeIn(duration: 0.18)) { opacity = 1 }
 
-            try? await SubsonicClient.shared.unstar(id: songId)
+            do {
+                try await SubsonicClient.shared.unstar(id: songId)
+            } catch {
+                isStarred = true    // still a favorite on the server
+            }
             isAnimating = false
         }
     }

@@ -2,6 +2,8 @@ import SwiftUI
 
 struct PlaylistListView: View {
     @Environment(LibraryStore.self) private var library
+    @State private var isCreating = false
+    @State private var newName = ""
 
     var body: some View {
         List {
@@ -45,8 +47,21 @@ struct PlaylistListView: View {
         .navigationDestination(for: Playlist.self) { PlaylistDetailView(playlistId: $0.id) }
         .toolbar {
             ToolbarItem {
-                Button { } label: { Image(systemName: "plus") }
+                Button { newName = ""; isCreating = true } label: { Image(systemName: "plus") }
+                    .help("New Playlist")
             }
+        }
+        .alert("New Playlist", isPresented: $isCreating) {
+            TextField("Name", text: $newName)
+            Button("Create") {
+                let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !name.isEmpty else { return }
+                Task {
+                    try? await SubsonicClient.shared.createPlaylist(name: name)
+                    await library.refreshPlaylists()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 }
@@ -55,6 +70,7 @@ struct PlaylistDetailView: View {
     let playlistId: String
     @Environment(PlayerEngine.self) private var player
     @State private var playlist: Playlist?
+    @State private var loadFailed = false
     @State private var sortOrder: SongSortOrder? = nil  // nil = server order
 
     private var displaySongs: [Song] {
@@ -117,13 +133,23 @@ struct PlaylistDetailView: View {
 
                     // Right: track list
                     List {
-                        ForEach(Array(displaySongs.enumerated()), id: \.element.id) { index, song in
-                            SongRow(song: song, showAlbum: true)
+                        // Keyed by position: a playlist may contain the same song more than once.
+                        let songs = displaySongs
+                        ForEach(Array(songs.enumerated()), id: \.offset) { index, song in
+                            SongRow(song: song, showAlbum: true, collection: songs)
                         }
                     }
                     .listStyle(.plain)
                 }
                 .navigationTitle(playlist.name)
+            } else if loadFailed {
+                ContentUnavailableView {
+                    Label("Couldn't load playlist", systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text("Check your connection to the server.")
+                } actions: {
+                    Button("Try Again") { loadFailed = false }
+                }
             } else {
                 List {
                     ForEach(0..<10, id: \.self) { _ in
@@ -134,8 +160,13 @@ struct PlaylistDetailView: View {
                 .navigationTitle("Loading...")
             }
         }
-        .task(id: playlistId) {
-            playlist = try? await SubsonicClient.shared.getPlaylist(id: playlistId)
+        .task(id: "\(playlistId)-\(loadFailed)") {
+            guard !loadFailed else { return }
+            do {
+                playlist = try await SubsonicClient.shared.getPlaylist(id: playlistId)
+            } catch {
+                if !Task.isCancelled { loadFailed = true }
+            }
         }
     }
 }

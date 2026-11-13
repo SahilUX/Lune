@@ -349,11 +349,19 @@ actor LastFMClient {
         _ params: [String: String],
         method: String
     ) async throws -> [String: Any] {
-        var components = URLComponents(string: baseURL)!
-        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
-
-        var request = URLRequest(url: components.url!)
-        request.httpMethod = method
+        var request: URLRequest
+        if method == "POST" {
+            // Write calls carry the session key and signature, so they go in the body, not the URL.
+            request = URLRequest(url: URL(string: baseURL)!)
+            request.httpMethod = "POST"
+            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            request.httpBody = Self.formEncode(params).data(using: .utf8)
+        } else {
+            var components = URLComponents(string: baseURL)!
+            components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
+            request = URLRequest(url: components.url!)
+            request.httpMethod = method
+        }
 
         let (data, _) = try await URLSession.shared.data(for: request)
 
@@ -366,6 +374,14 @@ actor LastFMClient {
         }
 
         return json
+    }
+
+    /// `application/x-www-form-urlencoded`. Unlike URLComponents, this also escapes `&`, `=` and `+`
+    /// inside values, which titles and artist names often contain.
+    private static func formEncode(_ params: [String: String]) -> String {
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")
+        func esc(_ s: String) -> String { s.addingPercentEncoding(withAllowedCharacters: allowed) ?? s }
+        return params.map { "\(esc($0.key))=\(esc($0.value))" }.joined(separator: "&")
     }
 
     private func sign(_ params: [String: String], secret: String) -> String {

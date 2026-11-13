@@ -27,7 +27,12 @@ struct RecordView: View {
                     .frame(width: size * 0.015, height: size * 0.015)
                     .offset(x: size * 0.04, y: -size * 0.04)
             }
+            // Flatten the rings/shadow into one layer so each frame only rotates a texture.
+            // The padding keeps the drop shadow from being clipped by that layer.
+            .padding(30)
+            .drawingGroup()
             .rotationEffect(.degrees(angle(at: context.date)))
+            .padding(-30)
             .frame(width: size, height: size)
         }
         .onChange(of: isPlaying) { _, playing in

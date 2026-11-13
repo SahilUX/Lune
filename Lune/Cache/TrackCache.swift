@@ -23,6 +23,12 @@ actor TrackCache {
         pruneIfNeeded()
     }
 
+    /// Deletes every cached track.
+    func clear() {
+        let files = (try? FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)) ?? []
+        for file in files { try? FileManager.default.removeItem(at: file) }
+    }
+
     private func cacheFileName(for song: Song) -> String {
         let ext = song.suffix ?? "mp3"
         return "\(song.id).\(ext)"

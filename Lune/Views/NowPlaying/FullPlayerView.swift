@@ -18,17 +18,21 @@ struct FullPlayerView: View {
             // Solid black — no tint, no translucency
             Color.black.ignoresSafeArea()
 
-            // Center art + optional lyrics
-            VStack(spacing: 0) {
-                Spacer()
+            // Center art + optional lyrics, sized from the window so a big display is actually used.
+            GeometryReader { geo in
+                let size = geo.size
+                let artSide = min(size.height * 0.58, size.width * (showLyrics ? 0.36 : 0.5), 900)
+                let gap = max(40, size.width * 0.04)
+                let lyricsWidth = min(size.width * 0.42, 820)
+                let lyricsSize = max(20, min(size.height / 24, 44))
 
-                HStack(spacing: 60) {
+                HStack(spacing: gap) {
                     Group {
                         if useRecord {
-                            RecordView(coverArtId: song?.coverArtId, isPlaying: player.isPlaying, size: 340)
+                            RecordView(coverArtId: song?.coverArtId, isPlaying: player.isPlaying, size: artSide)
                         } else {
-                            AsyncArtwork(coverArtId: song?.coverArtId, size: 800, cornerRadius: 20)
-                                .frame(width: 340, height: 340)
+                            AsyncArtwork(coverArtId: song?.coverArtId, size: 1000, cornerRadius: artSide * 0.06)
+                                .frame(width: artSide, height: artSide)
                                 .shadow(color: .black.opacity(0.8), radius: 40, y: 20)
                         }
                     }
@@ -37,7 +41,7 @@ struct FullPlayerView: View {
                     if showLyrics {
                         Group {
                             if let lyrics, !lyrics.isEmpty {
-                                LyricsPanelView(lyrics: lyrics, currentTime: player.currentTime)
+                                LyricsPanelView(lyrics: lyrics, baseSize: lyricsSize)
                             } else {
                                 VStack(spacing: 12) {
                                     Spacer()
@@ -48,15 +52,15 @@ struct FullPlayerView: View {
                                 }
                             }
                         }
-                        .frame(minWidth: 260, maxWidth: 320, maxHeight: .infinity)
+                        // The stage is always on black, whatever the system appearance is.
+                        .environment(\.colorScheme, .dark)
+                        .frame(width: lyricsWidth, height: size.height * 0.66)
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                     }
                 }
                 .animation(.spring(duration: 0.35), value: showLyrics)
-
-                Spacer()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Controls overlay — always fills the full frame so Spacer() works
             if showControls {
@@ -72,7 +76,6 @@ struct FullPlayerView: View {
                                 .foregroundStyle(.white.opacity(0.8))
                         }
                         .buttonStyle(.plain)
-                        .keyboardShortcut(.escape, modifiers: [])
 
                         Spacer()
 
@@ -113,7 +116,7 @@ struct FullPlayerView: View {
                         }
 
                         SeekBar()
-                            .frame(maxWidth: 560)
+                            .frame(maxWidth: 900)
                             .colorScheme(.dark)
 
                         HStack(spacing: 44) {
@@ -139,6 +142,15 @@ struct FullPlayerView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .transition(.opacity)
             }
+        }
+        // Lives outside `if showControls`, so Esc still closes the player once the controls hide.
+        .background {
+            Button("Close Full Player") {
+                withAnimation(.easeInOut(duration: 0.25)) { isShowing = false }
+            }
+            .keyboardShortcut(.escape, modifiers: [])
+            .opacity(0)
+            .accessibilityHidden(true)
         }
         // contentShape ensures hover events hit the full black background
         .contentShape(Rectangle())
@@ -176,35 +188,36 @@ struct FullPlayerView: View {
 
 // MARK: - Shared lyrics panel
 
+/// Reads the playback position itself, so the views that show it don't re-render
+/// every half second just to move the highlight.
 struct LyricsPanelView: View {
     let lyrics: LyricsData
-    let currentTime: Double
+    /// Text size of a normal line; the current line is drawn larger.
+    var baseSize: CGFloat = 15
+    @Environment(PlayerEngine.self) private var player
 
+    /// Index of the line being sung: the last line that has started. Lines are in time order.
     private var currentIndex: Int? {
         guard lyrics.isSynced else { return nil }
-        let ms = Int(currentTime * 1000)
-        var idx: Int? = nil
-        for (i, line) in lyrics.lines.enumerated() {
-            if line.startMs <= ms { idx = i } else { break }
+        let ms = Int(player.currentTime * 1000)
+        var low = 0, high = lyrics.lines.count
+        while low < high {
+            let mid = (low + high) / 2
+            if lyrics.lines[mid].startMs <= ms { low = mid + 1 } else { high = mid }
         }
-        return idx
+        return low == 0 ? nil : low - 1
     }
 
     var body: some View {
+        let current = currentIndex
+        let currentID = current.map { lyrics.lines[$0].id }
+
         ScrollViewReader { proxy in
             ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 20) {
-                    ForEach(Array(lyrics.lines.enumerated()), id: \.element.id) { index, line in
+                LazyVStack(spacing: baseSize * 1.3) {
+                    ForEach(lyrics.lines) { line in
                         if !line.text.isEmpty {
-                            Text(line.text)
-                                .font(index == currentIndex ? .title3.bold() : .body)
-                                .foregroundStyle(index == currentIndex
-                                    ? Color.primary
-                                    : Color.secondary.opacity(0.5))
-                                .multilineTextAlignment(.center)
-                                .lineLimit(nil)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .animation(.easeInOut(duration: 0.3), value: currentIndex)
+                            LyricRow(text: line.text, isCurrent: line.id == currentID, baseSize: baseSize)
                                 .id(line.id)
                         }
                     }
@@ -213,13 +226,33 @@ struct LyricsPanelView: View {
                 .padding(.horizontal, 16)
                 .frame(maxWidth: .infinity)
             }
-            .onChange(of: currentIndex) { _, idx in
+            .onAppear {
+                // Opening the panel mid-song should land on the current line, not the top.
+                if let currentID { proxy.scrollTo(currentID, anchor: .center) }
+            }
+            .onChange(of: current) { _, idx in
                 guard let idx, idx < lyrics.lines.count else { return }
                 withAnimation(.easeInOut(duration: 0.5)) {
                     proxy.scrollTo(lyrics.lines[idx].id, anchor: .center)
                 }
             }
         }
+    }
+}
+
+private struct LyricRow: View {
+    let text: String
+    let isCurrent: Bool
+    let baseSize: CGFloat
+
+    var body: some View {
+        Text(text)
+            .font(.system(size: isCurrent ? baseSize * 1.35 : baseSize, weight: isCurrent ? .bold : .regular))
+            .foregroundStyle(isCurrent ? Color.primary : Color.secondary.opacity(0.5))
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
+            // Only the rows that actually change animate.
+            .animation(.easeInOut(duration: 0.3), value: isCurrent)
     }
 }
 

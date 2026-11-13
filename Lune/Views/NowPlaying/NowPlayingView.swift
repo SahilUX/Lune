@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct NowPlayingView: View {
     @Binding var isShowing: Bool
@@ -15,8 +16,7 @@ struct NowPlayingView: View {
         ZStack {
             Color(nsColor: .windowBackgroundColor).ignoresSafeArea()
 
-            AsyncArtwork(coverArtId: song?.coverArtId, size: 600, cornerRadius: 0)
-                .blur(radius: 80).scaleEffect(1.3).opacity(0.25).clipped().ignoresSafeArea()
+            BlurredBackdrop(coverArtId: song?.coverArtId).ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // Top: Artwork + optional lyrics panel (expands)
@@ -43,7 +43,7 @@ struct NowPlayingView: View {
                             // Right: Lyrics (takes right half)
                             Group {
                                 if let lyrics, !lyrics.isEmpty {
-                                    LyricsPanelView(lyrics: lyrics, currentTime: player.currentTime)
+                                    LyricsPanelView(lyrics: lyrics)
                                 } else {
                                     VStack(spacing: 12) {
                                         Spacer()
@@ -154,6 +154,37 @@ struct NowPlayingView: View {
     }
 }
 
+/// Soft artwork glow behind the player. The blur is applied to a tiny image that is then
+/// scaled up, instead of blurring a window-sized layer every frame (that cost a lot of GPU).
+struct BlurredBackdrop: View {
+    let coverArtId: String?
+    @State private var image: NSImage?
+
+    var body: some View {
+        GeometryReader { geo in
+            Group {
+                if let image {
+                    Image(nsImage: image)
+                        .resizable()
+                        .frame(width: 64, height: 64)
+                        .blur(radius: 5)
+                        .drawingGroup()
+                        .scaleEffect(max(geo.size.width, geo.size.height) / 64 * 1.2)
+                } else {
+                    Color.clear
+                }
+            }
+            .frame(width: geo.size.width, height: geo.size.height)
+            .opacity(0.3)
+            .clipped()
+        }
+        .task(id: coverArtId) {
+            guard let id = coverArtId else { image = nil; return }
+            image = await ImageCache.shared.image(for: id, size: 64)
+        }
+    }
+}
+
 struct AudioFormatBadge: View {
     let song: Song
 
@@ -201,6 +232,8 @@ final class PiPWindowController {
 
     private var panel: NSPanel?
     private var hostingController: NSViewController?
+    /// Set only when this controller hid the main window, so closing restores just that.
+    private var hidMainWindow = false
 
     func open(hidingMainWindow: Bool) {
         if let existingPanel = panel {
@@ -233,8 +266,9 @@ final class PiPWindowController {
         self.panel = panel
         self.hostingController = hostingController
 
-        if hidingMainWindow {
-            mainWindow?.orderOut(nil)
+        if hidingMainWindow, let main = MainWindow.shared.window {
+            main.orderOut(nil)
+            hidMainWindow = true
         }
     }
 
@@ -243,14 +277,10 @@ final class PiPWindowController {
         panel = nil
         hostingController = nil
 
-        let hidesPref = UserDefaults.standard.bool(forKey: "pipHidesMainWindow")
-        if hidesPref {
-            mainWindow?.makeKeyAndOrderFront(nil)
+        if hidMainWindow {
+            hidMainWindow = false
+            MainWindow.shared.window?.makeKeyAndOrderFront(nil)
         }
-    }
-
-    private var mainWindow: NSWindow? {
-        NSApp.windows.first { $0.styleMask.contains(.titled) && !($0 is NSPanel) }
     }
 }
 

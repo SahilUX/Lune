@@ -1,5 +1,6 @@
 import Foundation
 import CryptoKit
+import os
 
 // Sendable value type used in nonisolated URL-building paths
 struct SubsonicURLBuilder: Sendable {
@@ -35,40 +36,52 @@ struct SubsonicURLBuilder: Sendable {
 actor SubsonicClient {
     static let shared = SubsonicClient()
 
-    private var urlBuilder: SubsonicURLBuilder?
-    private var remoteBuilder: SubsonicURLBuilder?
-    private var preferRemote = false  // Tracks if local failed and we switched to remote
+    /// Server endpoints and which one is currently working. Kept behind a lock (not as actor
+    /// state) so streaming and artwork URLs, which are built outside the actor, always see
+    /// the endpoint the API calls settled on, and never race a reconfiguration.
+    private struct Endpoints: Sendable {
+        var primary: SubsonicURLBuilder?
+        var remote: SubsonicURLBuilder?
+        var preferRemote = false
+        var remoteSince: Date?
+        var namespace = ""
 
-    // Cached for nonisolated URL building
-    nonisolated(unsafe) private var _urlBuilder: SubsonicURLBuilder?
+        var active: SubsonicURLBuilder? { preferRemote ? (remote ?? primary) : primary }
+    }
+
+    private let endpoints = OSAllocatedUnfairLock(initialState: Endpoints())
+
+    /// While on the remote endpoint, how long to wait before probing the local one again.
+    private static let localRetryInterval: TimeInterval = 300
 
     func configure(config: ServerConfig, password: String) {
         // Try local URL first, fall back to remote
         let primaryURL = config.localURL ?? config.remoteURL ?? ""
         let primaryBuilder = SubsonicURLBuilder(serverURL: primaryURL, username: config.username, password: password)
-        urlBuilder = primaryBuilder
-        _urlBuilder = primaryBuilder
 
         // Store remote builder for fallback if local is available
-        if let remoteURL = config.remoteURL, remoteURL != primaryURL {
-            remoteBuilder = SubsonicURLBuilder(serverURL: remoteURL, username: config.username, password: password)
-        } else {
-            remoteBuilder = nil
+        let remoteBuilder: SubsonicURLBuilder? = {
+            guard let remoteURL = config.remoteURL, remoteURL != primaryURL else { return nil }
+            return SubsonicURLBuilder(serverURL: remoteURL, username: config.username, password: password)
+        }()
+
+        // Cached files are keyed by this, so two servers that reuse an ID never share an entry.
+        let identity = "\(config.remoteURL ?? primaryURL)|\(config.username)"
+        let namespace = SHA256.hash(data: Data(identity.utf8)).prefix(6)
+            .map { String(format: "%02x", $0) }.joined()
+
+        endpoints.withLock {
+            $0 = Endpoints(primary: primaryBuilder, remote: remoteBuilder, namespace: namespace)
         }
-        preferRemote = false
     }
 
-    // MARK: - URL Building (isolated)
-
-    private func url(endpoint: String, params: [URLQueryItem] = []) throws -> URL {
-        guard let b = urlBuilder else { throw APIError.notConfigured }
-        return try b.buildURL(endpoint: endpoint, params: params)
-    }
+    /// Stable per-server prefix for cache keys.
+    nonisolated var cacheNamespace: String { endpoints.withLock { $0.namespace } }
 
     // MARK: - URL Building (nonisolated — for streaming / art in sync contexts)
 
     nonisolated func streamURL(songId: String, maxBitRate: Int? = nil, format: String? = nil) throws -> URL {
-        guard let b = _urlBuilder else { throw APIError.notConfigured }
+        guard let b = endpoints.withLock({ $0.active }) else { throw APIError.notConfigured }
         var params = [URLQueryItem(name: "id", value: songId)]
         if let maxBitRate, maxBitRate > 0 { params.append(URLQueryItem(name: "maxBitRate", value: "\(maxBitRate)")) }
         if let format, !format.isEmpty { params.append(URLQueryItem(name: "format", value: format)) }
@@ -76,7 +89,7 @@ actor SubsonicClient {
     }
 
     nonisolated func coverArtURL(id: String, size: Int = 300) throws -> URL {
-        guard let b = _urlBuilder else { throw APIError.notConfigured }
+        guard let b = endpoints.withLock({ $0.active }) else { throw APIError.notConfigured }
         return try b.buildURL(endpoint: "getCoverArt", params: [
             URLQueryItem(name: "id", value: id),
             URLQueryItem(name: "size", value: "\(size)"),
@@ -86,34 +99,36 @@ actor SubsonicClient {
     // MARK: - Fetch helper with fallback
 
     private func fetch<T: Decodable>(_ endpoint: String, params: [URLQueryItem] = []) async throws -> T {
-        // If we previously switched to remote, try remote first; otherwise try primary first
-        if preferRemote, let remote = remoteBuilder {
-            do {
-                return try await fetchWithBuilder(remote, endpoint: endpoint, params: params)
-            } catch {
-                // Remote also failed, return the error
-                throw error
-            }
+        let snapshot = endpoints.withLock { $0 }
+        guard let primary = snapshot.primary else { throw APIError.notConfigured }
+        guard let remote = snapshot.remote else {
+            return try await fetchWithBuilder(primary, endpoint: endpoint, params: params)
         }
 
-        // Try primary URL
+        // Once on the remote endpoint, stay there for a while before probing local again.
+        if snapshot.preferRemote,
+           Date().timeIntervalSince(snapshot.remoteSince ?? .distantPast) < Self.localRetryInterval {
+            return try await fetchWithBuilder(remote, endpoint: endpoint, params: params)
+        }
+
         do {
-            return try await fetchWithBuilder(urlBuilder, endpoint: endpoint, params: params)
-        } catch {
-            // Primary failed; if we have a remote fallback and this was a network error, try it
-            if let remote = remoteBuilder {
-                do {
-                    let result: T = try await fetchWithBuilder(remote, endpoint: endpoint, params: params)
-                    preferRemote = true  // Successfully switched; prefer remote going forward
-                    return result
-                } catch let remoteError {
-                    // Remote also failed. A certificate problem on the primary is
-                    // the one the user can act on, so report it over a generic failure.
-                    throw error is UntrustedCertificate && !(remoteError is UntrustedCertificate) ? error : remoteError
-                }
+            let result: T = try await fetchWithBuilder(primary, endpoint: endpoint, params: params)
+            if snapshot.preferRemote {
+                endpoints.withLock { $0.preferRemote = false; $0.remoteSince = nil }
             }
-            // No fallback available
-            throw error
+            return result
+        } catch {
+            // A cancelled request must not spawn a second one against the remote server.
+            if Task.isCancelled || error is CancellationError { throw error }
+            do {
+                let result: T = try await fetchWithBuilder(remote, endpoint: endpoint, params: params)
+                endpoints.withLock { $0.preferRemote = true; $0.remoteSince = Date() }
+                return result
+            } catch let remoteError {
+                // Remote also failed. A certificate problem on the primary is
+                // the one the user can act on, so report it over a generic failure.
+                throw error is UntrustedCertificate && !(remoteError is UntrustedCertificate) ? error : remoteError
+            }
         }
     }
 
@@ -248,12 +263,17 @@ actor SubsonicClient {
         let _: EmptyResult = try await fetch("ping")
     }
 
-    func getLyricsBySongId(songId: String) async throws -> [LyricsLine] {
+    /// Structured lyrics for a song. `synced` is false when the server only has plain text,
+    /// in which case the lines carry no timestamps.
+    func getLyricsBySongId(songId: String) async throws -> (lines: [LyricsLine], synced: Bool) {
         let result: LyricsListResult = try await fetch("getLyricsBySongId",
             params: [URLQueryItem(name: "id", value: songId)])
-        guard let structured = result.lyricsList.structuredLyrics?.first,
-              let lines = structured.line else { return [] }
-        return lines.map { LyricsLine(text: $0.value, startMs: $0.start ?? 0) }
+        let all = result.lyricsList.structuredLyrics ?? []
+        // Prefer a synced version when the server has several.
+        guard let structured = all.first(where: { $0.synced && !($0.line ?? []).isEmpty }) ?? all.first,
+              let lines = structured.line else { return ([], false) }
+        let mapped = lines.map { LyricsLine(text: $0.value, startMs: structured.synced ? ($0.start ?? 0) : 0) }
+        return (mapped, structured.synced)
     }
 
     func getLyrics(artist: String, title: String) async throws -> String {
