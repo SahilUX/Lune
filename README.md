@@ -135,7 +135,7 @@ Lune/
 5. Submits the DMG with `xcrun notarytool submit --keychain-profile lune-notary --wait`, and prints the notary log if Apple rejects it.
 6. Staples the ticket to the DMG and checks it with `stapler validate` and `spctl -t open`.
 
-The only output is `~/Downloads/Lune-<version>/Lune-<version>.dmg`. The version comes from `CFBundleShortVersionString` in `Lune/Info.plist`.
+The only output is `~/Downloads/Lune-<version>/Lune-<version>.dmg`. The version comes from `CFBundleShortVersionString` in `project.yml` (`xcodegen generate` rewrites `Lune/Info.plist` from it, so bump it there, not in the plist).
 
 To publish it, merge your changes to `main`, run the script from the main checkout, then attach the DMG to a GitHub release:
 

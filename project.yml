@@ -37,6 +37,11 @@ targets:
         com.apple.security.files.user-selected.read-write: true
     info:
       path: Lune/Info.plist
+      # The version lives here: `xcodegen generate` (run by scripts/release.sh) rewrites
+      # Lune/Info.plist from this file, so editing the plist alone gets reset.
+      properties:
+        CFBundleShortVersionString: "1.1"
+        CFBundleVersion: "2"
 
 schemes:
   Lune:
