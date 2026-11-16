@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var lastfmToken = ""
     @State private var lastfmIsAuthenticating = false
     @State private var lastfmError: String?
+    @State private var cacheBytes: Int64 = 0
 
     var body: some View {
         TabView {
@@ -25,6 +26,7 @@ struct SettingsView: View {
         }
         .frame(width: 520, height: 340)
         .onAppear { prefill() }
+        .task { cacheBytes = await TrackCache.shared.totalBytes() }
         .certificateTrustPrompt($untrustedCertificate) {
             trustedHosts = ServerTrust.shared.trustedHosts
             Task { await testConnection() }
@@ -155,7 +157,7 @@ struct SettingsView: View {
     private var cacheTab: some View {
         Form {
             Picker("Cache Size Limit", selection: Binding(
-                get: { UserDefaults.standard.integer(forKey: "cacheSizeGB") },
+                get: { UserDefaults.standard.object(forKey: "cacheSizeGB") as? Int ?? 2 },
                 set: { UserDefaults.standard.set($0, forKey: "cacheSizeGB") }
             )) {
                 Text("1 GB").tag(1)
@@ -165,10 +167,13 @@ struct SettingsView: View {
                 Text("Unlimited").tag(0)
             }
 
+            LabeledContent("Offline tracks", value: ByteCountFormatter.string(fromByteCount: cacheBytes, countStyle: .file))
+
             Button("Clear Cache", role: .destructive) {
                 Task {
                     await TrackCache.shared.clear()
                     await ImageCache.shared.clear()
+                    cacheBytes = await TrackCache.shared.totalBytes()
                 }
             }
         }

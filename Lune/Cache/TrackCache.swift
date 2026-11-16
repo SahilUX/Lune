@@ -1,65 +1,101 @@
 import Foundation
 
+/// Tracks kept on disk so replaying them needs no network. A track is added in the
+/// background once the listener has stayed with it for a few seconds (see `PlayerEngine`),
+/// and the least recently played ones are dropped when the size limit is reached.
 actor TrackCache {
     static let shared = TrackCache()
 
     private let cacheDir: URL
-    private let maxBytes: Int64 = 2 * 1024 * 1024 * 1024  // 2 GB default
+    private var downloading: Set<String> = []
 
-    init() {
+    /// Size limit from Settings. Defaults to 2 GB; 0 means unlimited.
+    private var maxBytes: Int64? {
+        let gb = UserDefaults.standard.object(forKey: "cacheSizeGB") as? Int ?? 2
+        return gb > 0 ? Int64(gb) * 1024 * 1024 * 1024 : nil
+    }
+
+    init(directory: URL? = nil) {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        cacheDir = appSupport.appendingPathComponent("Lune/TrackCache", isDirectory: true)
+        cacheDir = directory ?? appSupport.appendingPathComponent("Lune/TrackCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDir, withIntermediateDirectories: true)
     }
 
+    /// The cached file for `song`, if it has one. Counts as a play for eviction order.
     func cachedURL(for song: Song) -> URL? {
-        let file = cacheDir.appendingPathComponent(cacheFileName(for: song))
-        return FileManager.default.fileExists(atPath: file.path) ? file : nil
+        let file = fileURL(for: song)
+        guard FileManager.default.fileExists(atPath: file.path) else { return nil }
+        try? FileManager.default.setAttributes([.modificationDate: Date()], ofItemAtPath: file.path)
+        return file
     }
 
-    func store(data: Data, for song: Song) {
-        let file = cacheDir.appendingPathComponent(cacheFileName(for: song))
-        try? data.write(to: file, options: .atomic)
-        pruneIfNeeded()
+    /// Downloads `song` into the cache. Safe to call repeatedly; does nothing if the track is
+    /// already cached or being fetched, and stops if the calling task is cancelled.
+    func cache(song: Song) async {
+        let file = fileURL(for: song)
+        let name = file.lastPathComponent
+        guard !FileManager.default.fileExists(atPath: file.path), downloading.insert(name).inserted else { return }
+        defer { downloading.remove(name) }
+
+        guard let url = try? SubsonicClient.shared.streamURL(songId: song.id),
+              let (temp, response) = try? await TrustedSession.shared.download(from: url) else { return }
+        defer { try? FileManager.default.removeItem(at: temp) }
+
+        // The server answers errors with a 200 and a JSON/XML body, so check what came back.
+        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return }
+        let type = (http.mimeType ?? "").lowercased()
+        guard !(type.hasPrefix("text/") || type.contains("json") || type.contains("xml")) else { return }
+
+        // Only keep a complete file: it must be the size the server says the track is.
+        let size = Int64((try? temp.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0)
+        guard size > 0 else { return }
+        if let expected = song.size, abs(size - expected) > max(expected / 50, 4096) { return }
+
+        do {
+            try FileManager.default.moveItem(at: temp, to: file)
+        } catch {
+            return
+        }
+        prune(keeping: file)
+    }
+
+    /// Bytes currently used by cached tracks.
+    func totalBytes() -> Int64 {
+        entries().reduce(0) { $0 + $1.size }
     }
 
     /// Deletes every cached track.
     func clear() {
-        let files = (try? FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)) ?? []
-        for file in files { try? FileManager.default.removeItem(at: file) }
+        for entry in entries() { try? FileManager.default.removeItem(at: entry.url) }
     }
 
-    private func cacheFileName(for song: Song) -> String {
-        let ext = song.suffix ?? "mp3"
-        return "\(song.id).\(ext)"
+    // MARK: - Private
+
+    private func fileURL(for song: Song) -> URL {
+        // Namespaced per server so two servers that reuse an ID never share a file.
+        let id = song.id.replacingOccurrences(of: "/", with: "_")
+        return cacheDir.appendingPathComponent("\(SubsonicClient.shared.cacheNamespace)_\(id).\(song.suffix ?? "mp3")")
     }
 
-    private func pruneIfNeeded() {
-        guard let contents = try? FileManager.default.contentsOfDirectory(
-            at: cacheDir, includingPropertiesForKeys: [.fileSizeKey, .contentAccessDateKey]
-        ) else { return }
-
-        var total: Int64 = 0
-        var files: [(url: URL, size: Int64, accessed: Date)] = []
-
-        for url in contents {
-            let values = try? url.resourceValues(forKeys: [.fileSizeKey, .contentAccessDateKey])
-            let size = Int64(values?.fileSize ?? 0)
-            let accessed = values?.contentAccessDate ?? .distantPast
-            total += size
-            files.append((url, size, accessed))
+    private func entries() -> [(url: URL, size: Int64, modified: Date)] {
+        let keys: [URLResourceKey] = [.fileSizeKey, .contentModificationDateKey]
+        let files = (try? FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: keys)) ?? []
+        return files.map {
+            let values = try? $0.resourceValues(forKeys: Set(keys))
+            return ($0, Int64(values?.fileSize ?? 0), values?.contentModificationDate ?? .distantPast)
         }
+    }
 
-        guard total > maxBytes else { return }
-
-        let sorted = files.sorted { $0.accessed < $1.accessed }
-        var freed: Int64 = 0
-        let target = total - maxBytes
-
-        for file in sorted {
-            try? FileManager.default.removeItem(at: file.url)
-            freed += file.size
-            if freed >= target { break }
+    /// Drops the least recently played tracks until the cache fits its limit.
+    private func prune(keeping keep: URL) {
+        guard let limit = maxBytes else { return }
+        var all = entries()
+        var total = all.reduce(0) { $0 + $1.size }
+        guard total > limit else { return }
+        all.sort { $0.modified < $1.modified }
+        for entry in all where total > limit && entry.url != keep {
+            try? FileManager.default.removeItem(at: entry.url)
+            total -= entry.size
         }
     }
 }

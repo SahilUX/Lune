@@ -57,6 +57,30 @@ struct LastFMStatsView: View {
     }
 }
 
+/// Looks things up in the library for the Last.fm cards. Results are cached and identical
+/// in-flight queries share one request, so 50 cards (and repeated tracks) don't each hit the server.
+actor LibraryMatcher {
+    static let shared = LibraryMatcher()
+
+    private var cache: [String: SearchResult] = [:]
+    private var inFlight: [String: Task<SearchResult, Error>] = [:]
+    private static let maxCached = 300
+
+    func search(query: String) async throws -> SearchResult {
+        let key = query.lowercased()
+        if let hit = cache[key] { return hit }
+        if let running = inFlight[key] { return try await running.value }
+
+        let task = Task { try await SubsonicClient.shared.search(query: query) }
+        inFlight[key] = task
+        defer { inFlight[key] = nil }
+        let result = try await task.value
+        if cache.count >= Self.maxCached { cache.removeAll() }
+        cache[key] = result
+        return result
+    }
+}
+
 struct TabToggleButton: View {
     let label: String
     let icon: String
@@ -222,18 +246,20 @@ struct ScrobbleRow: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
-        .task {
+        // Keyed by content: a reused row must not keep the previous result's destination.
+        .task(id: "\(trackName)|\(artistName)") {
+            selectedAlbum = nil
             await searchAndNavigate()
         }
     }
 
     private func searchAndNavigate() async {
         do {
-            var result = try await SubsonicClient.shared.search(query: "\(trackName) \(artistName)")
+            var result = try await LibraryMatcher.shared.search(query: "\(trackName) \(artistName)")
 
             // If no results and artist is "Unknown", try just the track name
             if result.albums.isEmpty && artistName == "Unknown" {
-                result = try await SubsonicClient.shared.search(query: trackName)
+                result = try await LibraryMatcher.shared.search(query: trackName)
             }
 
             selectedAlbum = result.albums.first
@@ -432,18 +458,20 @@ struct TopTrackCard: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
-        .task {
+        // Keyed by content: a reused row must not keep the previous result's destination.
+        .task(id: "\(trackName)|\(artistName)") {
+            selectedAlbum = nil
             await searchAndNavigate()
         }
     }
 
     private func searchAndNavigate() async {
         do {
-            var result = try await SubsonicClient.shared.search(query: "\(trackName) \(artistName)")
+            var result = try await LibraryMatcher.shared.search(query: "\(trackName) \(artistName)")
 
             // If no results and artist is "Unknown", try just the track name
             if result.albums.isEmpty && artistName == "Unknown" {
-                result = try await SubsonicClient.shared.search(query: trackName)
+                result = try await LibraryMatcher.shared.search(query: trackName)
             }
 
             selectedAlbum = result.albums.first
@@ -591,14 +619,16 @@ struct TopArtistCard: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
-        .task {
+        // Keyed by content: a reused row must not keep the previous result's destination.
+        .task(id: artistName) {
+            selectedArtist = nil
             await searchAndNavigate()
         }
     }
 
     private func searchAndNavigate() async {
         do {
-            let result = try await SubsonicClient.shared.search(query: artistName)
+            let result = try await LibraryMatcher.shared.search(query: artistName)
             selectedArtist = result.artists.first
         } catch {
             print("[Last.fm] Failed to search artist: \(error)")
@@ -754,18 +784,20 @@ struct TopAlbumCard: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.primary)
-        .task {
+        // Keyed by content: a reused row must not keep the previous result's destination.
+        .task(id: "\(albumName)|\(artistName)") {
+            selectedAlbum = nil
             await searchAndNavigate()
         }
     }
 
     private func searchAndNavigate() async {
         do {
-            var result = try await SubsonicClient.shared.search(query: "\(albumName) \(artistName)")
+            var result = try await LibraryMatcher.shared.search(query: "\(albumName) \(artistName)")
 
             // If no results and artist is "Unknown", try just the album name
             if result.albums.isEmpty && artistName == "Unknown" {
-                result = try await SubsonicClient.shared.search(query: albumName)
+                result = try await LibraryMatcher.shared.search(query: albumName)
             }
 
             selectedAlbum = result.albums.first
