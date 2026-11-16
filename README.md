@@ -14,7 +14,7 @@ A native macOS music client for Navidrome/Subsonic servers with Last.fm scrobbli
 - **Search**: Full-text search across your library
 - **Last.fm Integration**: Scrobble your plays to Last.fm
 - **Lyrics**: Display synchronized lyrics when available
-- **Caching**: Local cache for offline playback
+- **Caching**: Tracks you listen to for a few seconds are kept on disk (size limit in Settings, least recently played dropped first), so replays work offline
 - **System Integration**: Menu bar player, keyboard shortcuts, system media controls
 
 ## Requirements
@@ -83,7 +83,7 @@ If your server uses a certificate macOS doesn't trust (self-signed, or from a pr
 - `SubsonicClient`: Network layer for Subsonic API calls
 - `LastFMClient`: Last.fm API integration for scrobbling
 - `LibraryStore`: Manages music library cache and state
-- `TrackCache`: Local file caching for offline playback
+- `TrackCache`: Disk cache of played tracks for offline replay; filled in the background by `PlayerEngine`, validated (status, type, size) before it is kept
 - `ImageCache`: Two-tier image caching (memory + disk)
 
 ## Project Structure

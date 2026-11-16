@@ -36,6 +36,7 @@ final class PlayerEngine {
     private var loadGeneration = 0
     private var loadTask: Task<Void, Never>?
     private var lyricsTask: Task<Void, Never>?
+    private var cacheTask: Task<Void, Never>?
     /// True once the user pauses, so an item that finishes loading afterwards stays paused.
     private var userPaused = false
 
@@ -197,8 +198,10 @@ final class PlayerEngine {
         loadGeneration &+= 1
         loadTask?.cancel()
         lyricsTask?.cancel()
+        cacheTask?.cancel()
         loadTask = nil
         lyricsTask = nil
+        cacheTask = nil
     }
 
     private func loadAndPlay(song: Song) {
@@ -265,6 +268,15 @@ final class PlayerEngine {
         Task {
             try? await SubsonicClient.shared.scrobble(id: song.id, submission: false)
             await LastFMClient.shared.updateNowPlaying(song: song)
+        }
+        // Keep a copy for offline replay, but only once the listener has stayed a while,
+        // so skipping through a list doesn't download every track. Cancelled on track change.
+        if !url.isFileURL {
+            cacheTask = Task {
+                try? await Task.sleep(for: .seconds(10))
+                guard !Task.isCancelled else { return }
+                await TrackCache.shared.cache(song: song)
+            }
         }
         lyricsTask = Task { [weak self] in
             let lyrics = await LyricsService.shared.lyrics(for: song)
