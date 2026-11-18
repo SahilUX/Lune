@@ -29,6 +29,7 @@ targets:
       base:
         INFOPLIST_FILE: Lune/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.sahil.lune
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_ENTITLEMENTS: Lune/Lune.entitlements
     entitlements:
       path: Lune/Lune.entitlements
