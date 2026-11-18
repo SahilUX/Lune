@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0647342557ECF7F2FBD46B82 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 139A207CD01A2538DFA3C2CD /* Assets.xcassets */; };
 		08915B07F8372359E3BE57CD /* Secrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE8482A709E26AE3D63D064 /* Secrets.swift */; };
 		0CB4C26A08397BD788BC7C74 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F2D433ABA795F3AB9A77E6 /* ImageCache.swift */; };
 		0EA4210215E625F932353606 /* LuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC9BDDE43C1CCF057DB437 /* LuneApp.swift */; };
@@ -54,6 +55,7 @@
 		016B08721B36B275F98091AF /* NowPlayingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NowPlayingView.swift; sourceTree = "<group>"; };
 		0D49E71FA2B5798E195B6C32 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0E7989C36D8988E4853441F1 /* DurationFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationFormatter.swift; sourceTree = "<group>"; };
+		139A207CD01A2538DFA3C2CD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14B167E0D0513569E930B6C7 /* Song.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Song.swift; sourceTree = "<group>"; };
 		18DD0111D3FC8C3D81825AC2 /* LibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryStore.swift; sourceTree = "<group>"; };
 		1FDCBA73F322582703584C65 /* Lune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lune.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -143,6 +145,7 @@
 		19B76B5A6F415B154C7776C1 /* Lune */ = {
 			isa = PBXGroup;
 			children = (
+				139A207CD01A2538DFA3C2CD /* Assets.xcassets */,
 				BB714D036EFA5C9D1FBEC458 /* Info.plist */,
 				6E01FF73EDB68FD73E6132D7 /* Lune.entitlements */,
 				B1125973F3A923EF10885091 /* API */,
@@ -360,6 +363,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0647342557ECF7F2FBD46B82 /* Assets.xcassets in Resources */,
 				CD1BED4E33F82069EB7A10AC /* Secrets.swift.template in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
