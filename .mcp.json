@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "erp-lead": {
+      "type": "stdio",
+      "command": "${HOME}/.local/bin/erp-mcp",
+      "args": ["lune-lead"]
+    },
+    "erp-scout": {
+      "type": "stdio",
+      "command": "${HOME}/.local/bin/erp-mcp",
+      "args": ["lune-scout"]
+    }
+  }
+}
